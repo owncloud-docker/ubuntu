@@ -11,4 +11,6 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   bzip2 \
   unzip \
   cron \
-  vim
+  vim \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

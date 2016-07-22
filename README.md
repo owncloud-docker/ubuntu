@@ -1,6 +1,4 @@
-# owncloud/ubuntu
-
-[![](https://badge.imagelayers.io/owncloud/ubuntu:latest.svg)](https://imagelayers.io/?images=owncloud/ubuntu:latest 'Get your own badge on imagelayers.io')
+# ownCloud / ubuntu
 
 This is a base image for an ownCloud stack running on
 [Ubuntu image](https://hub.docker.com/r/library/ubuntu/).
