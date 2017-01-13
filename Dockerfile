@@ -22,9 +22,7 @@ RUN apt-get update -y && \
     iputils-ping \
     bzip2 \
     unzip \
-    cron \
-    gosu \
-    wait-for-it && \
+    cron && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
