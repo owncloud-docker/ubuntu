@@ -2,6 +2,6 @@
 
 docker build \
   --build-arg VERSION=$(cat VERSION) \
-  --build-arg VCS_REF=$(git rev-parse — short HEAD) \
+  --build-arg VCS_REF=${SOURCE_COMMIT} \
   --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
   -t ${IMAGE_NAME} .
