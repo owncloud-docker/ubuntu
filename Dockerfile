@@ -8,6 +8,9 @@ ARG VCS_REF
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
+ADD rootfs /
+CMD ["bash"]
+
 RUN apt-get update -y && \
   apt-get upgrade -y && \
   apt-get install -y \
@@ -25,9 +28,6 @@ RUN apt-get update -y && \
     cron && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-ADD rootfs /
-CMD ["bash"]
 
 LABEL org.label-schema.version=$VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE

@@ -14,6 +14,15 @@ docker run -ti \
 ```
 
 
+## Build locally
+
+The available versions should be already pushed to the Docker Hub, but in case you want to try a change locally you can always execute the follwiing command to get this image built locally:
+
+```
+IMAGE_NAME=owncloud/ubuntu ./hooks/build
+```
+
+
 ## Versions
 
 * [latest](https://github.com/owncloud-docker/ubuntu/tree/master) available as ```owncloud/ubuntu:latest``` at [Docker Hub](https://registry.hub.docker.com/u/owncloud/ubuntu/)
@@ -32,6 +41,11 @@ docker run -ti \
 ## Available environment variables
 
 **None**
+
+
+## Issues, Feedback and Ideas
+
+Open an [Issue](https://github.com/owncloud-docker/ubuntu/issues)
 
 
 ## Contributing
