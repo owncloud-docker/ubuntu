@@ -1,10 +1,6 @@
 FROM ubuntu:16.04
 MAINTAINER ownCloud DevOps <devops@owncloud.com>
 
-ARG VERSION
-ARG BUILD_DATE
-ARG VCS_REF
-
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
@@ -28,6 +24,10 @@ RUN apt-get update -y && \
     cron && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ARG VERSION
+ARG BUILD_DATE
+ARG VCS_REF
 
 LABEL org.label-schema.version=$VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE

@@ -16,7 +16,7 @@ docker run -ti \
 
 ## Build locally
 
-The available versions should be already pushed to the Docker Hub, but in case you want to try a change locally you can always execute the follwiing command to get this image built locally:
+The available versions should be already pushed to the Docker Hub, but in case you want to try a change locally you can always execute the following command to get this image built locally:
 
 ```
 IMAGE_NAME=owncloud/ubuntu ./hooks/build
