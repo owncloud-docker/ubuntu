@@ -4,6 +4,9 @@ set -e
 mkdir -p rootfs/usr/bin
 rm -rf build/
 
+echo "> Downloading dockerize..."
+wget -O - https://github.com/jwilder/dockerize/releases/download/v0.3.0/dockerize-linux-amd64-v0.3.0.tar.gz | tar -C rootfs/usr/bin -xzvf -
+
 echo "> Downloading wait-for-it..."
 wget -O rootfs/usr/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
 
