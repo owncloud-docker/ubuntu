@@ -9,13 +9,13 @@ clone:
     tags: true
 
 pipeline:
-  restore:
-    image: jmccann/drone-s3-cache:latest
-    pull: true
-    secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
-    restore: true
-    when:
-      local: false
+  # restore:
+  #   image: jmccann/drone-s3-cache:latest
+  #   pull: true
+  #   secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
+  #   restore: true
+  #   when:
+  #     local: false
 
   tools:
     image: owncloud/ubuntu:latest
@@ -34,24 +34,24 @@ pipeline:
       event: [ push ]
       branch: [ master ]
 
-  rebuild:
-    image: jmccann/drone-s3-cache:latest
-    pull: true
-    secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
-    rebuild: true
-    mount:
-      - docker
-    when:
-      local: false
+  # rebuild:
+  #   image: jmccann/drone-s3-cache:latest
+  #   pull: true
+  #   secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
+  #   rebuild: true
+  #   mount:
+  #     - docker
+  #   when:
+  #     local: false
 
-  flush:
-    image: jmccann/drone-s3-cache:latest
-    pull: true
-    secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
-    flush: true
-    flush_age: 14
-    when:
-      local: false
+  # flush:
+  #   image: jmccann/drone-s3-cache:latest
+  #   pull: true
+  #   secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
+  #   flush: true
+  #   flush_age: 14
+  #   when:
+  #     local: false
 
   microbadger:
     image: zyclonite/drone-webhook:latest
