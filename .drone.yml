@@ -12,7 +12,8 @@ pipeline:
   tools:
     image: owncloud/ubuntu:latest
     commands:
-      bash update-tools.sh
+      - apt-get update && apt-get install -y git-core build-essential
+      - bash update-tools.sh
 
   docker:
     image: plugins/docker

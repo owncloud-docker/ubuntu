@@ -20,7 +20,7 @@ git clone https://github.com/ncopa/su-exec.git build/su-exec
 
 pushd build/su-exec > /dev/null
   echo "> Building su-exec..."
-  docker run -ti --rm -v $(pwd):/mnt -w /mnt owncloud/ubuntu:latest /bin/bash -c "apt-get update && apt-get install -y build-essential && make all"
+  make all
 
   echo "> Copying su-exec..."
   cp su-exec ../../rootfs/usr/bin/
