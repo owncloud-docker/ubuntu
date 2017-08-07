@@ -15,15 +15,10 @@ wget -O rootfs/usr/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/w
 echo "> Make wait-for-it executable..."
 chmod +x rootfs/usr/bin/wait-for-it
 
-echo "> Cloning su-exec..."
-git clone https://github.com/ncopa/su-exec.git build/su-exec
+echo "> Downloading su-exec..."
+wget -O rootfs/usr/bin/su-exec https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64
 
-pushd build/su-exec > /dev/null
-  echo "> Building su-exec..."
-  make all
-
-  echo "> Copying su-exec..."
-  cp su-exec ../../rootfs/usr/bin/
-popd > /dev/null
+echo "> Make su-exec executable..."
+chmod +x rootfs/usr/bin/su-exec
 
 echo "> Done!"

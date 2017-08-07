@@ -9,24 +9,53 @@ clone:
     tags: true
 
 pipeline:
+  restore:
+    image: jmccann/drone-s3-cache:latest
+    pull: true
+    secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
+    restore: true
+    when:
+      local: false
+
   tools:
     image: owncloud/ubuntu:latest
+    pull: true
     commands:
-      - apt-get update && apt-get install -y git-core build-essential
       - bash update-tools.sh
 
   docker:
-    image: plugins/docker
+    image: plugins/docker:latest
     pull: true
     secrets: [ docker_username, docker_password ]
+    storage_path: /drone/src/github.com/owncloud-docker/ubuntu/docker
     repo: owncloud/ubuntu
     tags: [ latest ]
     when:
       event: [ push ]
       branch: [ master ]
 
+  rebuild:
+    image: jmccann/drone-s3-cache:latest
+    pull: true
+    secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
+    rebuild: true
+    mount:
+      - docker
+    when:
+      local: false
+
+  flush:
+    image: jmccann/drone-s3-cache:latest
+    pull: true
+    secrets: [ cache_s3_server, cache_s3_access_key, cache_s3_secret_key ]
+    flush: true
+    flush_age: 14
+    when:
+      local: false
+
   microbadger:
-    image: zyclonite/drone-webhook
+    image: zyclonite/drone-webhook:latest
+    pull: true
     secrets:
       - source: microbadger_token
         target: plugin_webhook
@@ -35,7 +64,7 @@ pipeline:
       status: [ success ]
 
   slack:
-    image: plugins/slack
+    image: plugins/slack:latest
     pull: true
     secrets: [ slack_webhook ]
     channel: drone
