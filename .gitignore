@@ -1,1 +1,5 @@
+rootfs/usr/bin/dockerize
+rootfs/usr/bin/wait-for-it
+rootfs/usr/bin/su-exec
+
 build/

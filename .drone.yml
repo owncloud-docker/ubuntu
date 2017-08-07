@@ -1,0 +1,42 @@
+workspace:
+  base: /drone
+  path: src/github.com/owncloud-docker/ubuntu
+
+clone:
+  git:
+    image: plugins/git
+    pull: true
+    tags: true
+
+pipeline:
+  tools:
+    image: owncloud/ubuntu:latest
+    commands:
+      bash update-tools.sh
+
+  docker:
+    image: plugins/docker
+    pull: true
+    secrets: [ docker_username, docker_password ]
+    repo: owncloud/ubuntu
+    tags: [ latest ]
+    when:
+      event: [ push ]
+      branch: [ master ]
+
+  microbadger:
+    image: zyclonite/drone-webhook
+    secrets:
+      - source: microbadger_token
+        target: plugin_webhook
+    when:
+      event: [ push ]
+      status: [ success ]
+
+  slack:
+    image: plugins/slack
+    pull: true
+    secrets: [ slack_webhook ]
+    channel: drone
+    when:
+      status: [ changed, failure ]
