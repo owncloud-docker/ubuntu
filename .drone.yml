@@ -27,7 +27,7 @@ pipeline:
     image: plugins/docker:latest
     pull: true
     secrets: [ docker_username, docker_password ]
-    storage_path: /drone/src/github.com/owncloud-docker/ubuntu/docker
+    # storage_path: /drone/src/github.com/owncloud-docker/ubuntu/docker
     repo: owncloud/ubuntu
     tags: [ latest ]
     when:
