@@ -18,7 +18,8 @@ RUN apt-get update -y && \
     iputils-ping \
     bzip2 \
     unzip \
-    cron && \
+    cron \
+    git-core && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
