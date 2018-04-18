@@ -41,9 +41,7 @@ pipeline:
   microbadger:
     image: plugins/webhook:1
     pull: true
-    secrets:
-      - source: microbadger_token
-        target: plugin_webhook
+    secrets: [ webhook_urls ]
     when:
       event: [ push ]
 
