@@ -1,5 +1,9 @@
 FROM ubuntu:16.04
-MAINTAINER ownCloud DevOps <devops@owncloud.com>
+
+LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
+  org.label-schema.name="ownCloud Ubuntu" \
+  org.label-schema.vendor="ownCloud GmbH" \
+  org.label-schema.schema-version="1.0"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
@@ -25,9 +29,3 @@ RUN apt-get update -y && \
 
 ADD rootfs /
 CMD ["bash"]
-
-LABEL org.label-schema.version=latest
-LABEL org.label-schema.vcs-url="https://github.com/owncloud-docker/ubuntu.git"
-LABEL org.label-schema.name="ownCloud Ubuntu"
-LABEL org.label-schema.vendor="ownCloud GmbH"
-LABEL org.label-schema.schema-version="1.0"

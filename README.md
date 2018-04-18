@@ -3,7 +3,7 @@
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud-docker/ubuntu/status.svg)](https://drone.owncloud.com/owncloud-docker/ubuntu)
 [![](https://images.microbadger.com/badges/image/owncloud/ubuntu:latest.svg)](https://microbadger.com/images/owncloud/ubuntu:latest "Get your own image badge on microbadger.com")
 
-This is our minimal customized [Ubuntu](http://www.ubuntu.com/) base image based on [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/). It's used for most Docker images you can find on this organization.
+This is our minimal customized [Ubuntu](http://www.ubuntu.com/) base image based on [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/). It's used for most of our Docker images.
 
 
 ## Versions
@@ -25,16 +25,6 @@ To get an overview about the available versions please take a look at the [GitHu
 
 ```
 
-```
-
-
-## Build locally
-
-The available versions should be already pushed to the Docker Hub, but in case you want to try a change locally you can always execute the following command to get this image built locally:
-
-```
-bash update-tools.sh
-IMAGE_NAME=owncloud/ubuntu ./hooks/build
 ```
 
 
@@ -62,5 +52,5 @@ MIT
 ## Copyright
 
 ```
-Copyright (c) 2017 Thomas Boerger <tboerger@owncloud.com>
+Copyright (c) 2018 Thomas Boerger <tboerger@owncloud.com>
 ```
