@@ -1,0 +1,58 @@
+workspace:
+  base: /drone
+  path: src/github.com/owncloud-docker/ubuntu
+
+branches:
+  - 18.04
+
+clone:
+  git:
+    image: plugins/git:1
+    pull: true
+
+pipeline:
+  tools:
+    image: owncloud/ubuntu:latest
+    pull: true
+    commands:
+      - bash update-tools.sh
+
+  docker:
+    image: plugins/docker:17.12
+    pull: true
+    secrets: [ docker_username, docker_password ]
+    repo: owncloud/ubuntu
+    tags:
+      - 18.04
+      - bionic
+    dry_run: true
+    when:
+      event: [ pull_request ]
+
+  docker:
+    image: plugins/docker:17.12
+    pull: true
+    secrets: [ docker_username, docker_password ]
+    repo: owncloud/ubuntu
+    tags:
+      - 18.04
+      - bionic
+    when:
+      event: [ push ]
+
+  microbadger:
+    image: plugins/webhook:1
+    pull: true
+    secrets: [ webhook_urls ]
+    when:
+      event: [ push ]
+
+  slack:
+    image: plugins/slack:1
+    pull: true
+    secrets: [ slack_webhook ]
+    channel: drone
+    when:
+      local: false
+      event: [ push ]
+      status: [ changed, failure ]
