@@ -64,7 +64,7 @@ pipeline:
     image: plugins/slack:1
     pull: true
     secrets: [ slack_webhook ]
-    channel: drone
+    channel: docker
     when:
       local: false
       event: [ push ]
