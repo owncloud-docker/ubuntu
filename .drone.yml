@@ -52,6 +52,7 @@ pipeline:
     pull: true
     secrets: [ drone_token ]
     server: https://drone.owncloud.com
+    last_successful: true
     repositories:
       - owncloud-docker/base@bionic
       - owncloud-ci/client@master
