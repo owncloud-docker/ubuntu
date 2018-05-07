@@ -23,7 +23,8 @@ RUN apt-get update -y && \
     bzip2 \
     unzip \
     cron \
-    git-core && \
+    git-core \
+    sshpass && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
