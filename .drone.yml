@@ -60,6 +60,7 @@ pipeline:
       local: false
       event: [ push ]
       status: [ success ]
+      branch: [ master ]
 
   slack:
     image: plugins/slack:1
