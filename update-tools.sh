@@ -4,7 +4,7 @@ set -e
 mkdir -p rootfs/usr/bin
 
 echo "> Downloading dockerize..."
-wget -O - https://github.com/jwilder/dockerize/releases/download/v0.4.0/dockerize-linux-amd64-v0.4.0.tar.gz | tar -C rootfs/usr/bin -xzvf -
+wget -O - https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz | tar -C rootfs/usr/bin -xzvf -
 
 echo "> Make dockerize executable..."
 chmod +x rootfs/usr/bin/dockerize
