@@ -54,7 +54,7 @@ pipeline:
     server: https://drone.owncloud.com
     last_successful: true
     repositories:
-      - owncloud-docker/base@bionic
+      - owncloud-docker/php@18.04
       - owncloud-ci/client@master
       - owncloud-ci/client@gcc
       - owncloud-ci/client@clang
