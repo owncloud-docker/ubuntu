@@ -55,7 +55,6 @@ pipeline:
     last_successful: true
     repositories:
       - owncloud-docker/php@16.04
-      - owncloud-docker/wordpress@master
     when:
       local: false
       event: [ push ]
