@@ -54,7 +54,7 @@ pipeline:
     server: https://drone.owncloud.com
     last_successful: true
     repositories:
-      - owncloud-docker/base@xenial
+      - owncloud-docker/php@16.04
       - owncloud-docker/wordpress@master
     when:
       local: false
