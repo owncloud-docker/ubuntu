@@ -59,6 +59,7 @@ pipeline:
       local: false
       event: [ push ]
       status: [ success ]
+      branch: [ 16.04 ]
 
   slack:
     image: plugins/slack:1
