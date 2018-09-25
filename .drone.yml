@@ -55,9 +55,6 @@ pipeline:
     last_successful: true
     repositories:
       - owncloud-docker/php@18.04
-      - owncloud-ci/client@master
-      - owncloud-ci/client@gcc
-      - owncloud-ci/client@clang
     when:
       local: false
       event: [ push ]
