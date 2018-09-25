@@ -52,7 +52,7 @@ pipeline:
     server: https://drone.owncloud.com
     last_successful: true
     repositories:
-      - owncloud-docker/base@master
+      - owncloud-docker/php@master
     when:
       local: false
       event: [ push ]
