@@ -1,5 +1,12 @@
 # Changelog
 
+## 2018-10-08
+
+* Changed
+  * Download additional tools within drone
+* Removed
+  * Dropped shell script for tool download
+
 ## 2018-09-25
 
 * Changed
