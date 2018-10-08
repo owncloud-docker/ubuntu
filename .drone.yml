@@ -11,11 +11,58 @@ clone:
     pull: true
 
 pipeline:
-  tools:
+  dockerize-download:
+    image: plugins/download:1
+    pull: true
+    source: https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
+    sha256: 1fa29cd41a5854fd5423e242f3ea9737a50a8c3bcf852c9e62b9eb02c6ccd370
+
+  dockerize-install:
     image: owncloud/ubuntu:latest
     pull: true
     commands:
-      - bash update-tools.sh
+      - tar xzvf dockerize-linux-amd64-v0.6.1.tar.gz
+      - install -D -m 0755 -T dockerize rootfs/usr/bin/dockerize
+      - rm -f dockerize-linux-amd64-v0.6.1.tar.gz dockerize
+
+  waitforit-download:
+    image: plugins/download:1
+    pull: true
+    source: https://raw.githubusercontent.com/vishnubob/wait-for-it/db049716e42767d39961e95dd9696103dca813f1/wait-for-it.sh
+    sha256: 0f75de5c9d9c37a933bb9744ffd710750d5773892930cfe40509fa505788835c
+
+  waitforit-install:
+    image: owncloud/ubuntu:latest
+    pull: true
+    commands:
+      - install -D -m 0755 -T wait-for-it.sh rootfs/usr/bin/wait-for-it
+      - rm -f wait-for-it.sh
+
+  gomplate-download:
+    image: plugins/download:1
+    pull: true
+    source: https://github.com/hairyhenderson/gomplate/releases/download/v3.0.0/gomplate_linux-amd64-slim
+    sha256: ba6cf854da46f9d9a50d26ec7d4a8a8b24f65ecce54a8a93d23eb0b6e138d8eb
+
+  gomplate-install:
+    image: owncloud/ubuntu:latest
+    pull: true
+    commands:
+      - install -D -m 0755 -T gomplate_linux-amd64-slim rootfs/usr/bin/gomplate
+      - rm -f gomplate_linux-amd64-slim
+
+  suexec-download:
+    image: plugins/download:1
+    pull: true
+    source: https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64
+    sha256: 5b3b03713a888cee84ecbf4582b21ac9fd46c3d935ff2d7ea25dd5055d302d3c
+
+  suexec-install:
+    image: owncloud/ubuntu:latest
+    pull: true
+    commands:
+      - install -D -m 0755 -T gosu-amd64 rootfs/usr/bin/su-exec
+      - rm -f gosu-amd64
 
   docker:
     image: plugins/docker:17.12
@@ -52,11 +99,15 @@ pipeline:
     server: https://drone.owncloud.com
     last_successful: true
     repositories:
-      - owncloud-docker/base@master
+      - owncloud-docker/php@master
+      - owncloud-ci/client@master
+      - owncloud-ci/client@gcc
+      - owncloud-ci/client@clang
     when:
       local: false
       event: [ push ]
       status: [ success ]
+      branch: [ master ]
 
   slack:
     image: plugins/slack:1
