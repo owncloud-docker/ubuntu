@@ -24,7 +24,8 @@ RUN apt-get update -y && \
     unzip \
     cron \
     git-core \
-    sshpass && \
+    sshpass \
+    tree && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
