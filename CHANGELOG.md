@@ -1,5 +1,10 @@
 # Changelog
 
+## 2019-04-17
+
+* Added
+  * Install gnupg for apt-key add usage
+
 ## 2018-10-08
 
 * Changed
