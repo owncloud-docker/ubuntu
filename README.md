@@ -5,21 +5,22 @@
 
 This is our minimal customized [Ubuntu](http://www.ubuntu.com/) base image based on [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/). It's used for most of our Docker images.
 
-
 ## Versions
 
-To get an overview about the available versions please take a look at the [GitHub branches](https://github.com/owncloud-docker/ubuntu/branches/all) or our [Docker Hub tags](https://hub.docker.com/r/owncloud/ubuntu/tags/), these lists are always up to date.
-
+* [latest](./latest) available as `owncloud/ubuntu:latest`
+* [19.10](./v19.10) available as `owncloud/ubuntu:19.10`
+* [19.04](./v19.04) available as `owncloud/ubuntu:19.04`
+* [18.10](./v18.10) available as `owncloud/ubuntu:18.10`
+* [18.04](./v18.04) available as `owncloud/ubuntu:18.04`
+* [16.04](./v16.04) available as `owncloud/ubuntu:16.04`
 
 ## Volumes
 
 * None
 
-
 ## Ports
 
 * None
-
 
 ## Available environment variables
 
@@ -27,27 +28,22 @@ To get an overview about the available versions please take a look at the [GitHu
 
 ```
 
-
 ## Issues, Feedback and Ideas
 
 Open an [Issue](https://github.com/owncloud-docker/ubuntu/issues)
 
-
 ## Contributing
 
 Fork -> Patch -> Push -> Pull Request
-
 
 ## Authors
 
 * [Thomas Boerger](https://github.com/tboerger)
 * [Felix Boehm](https://github.com/felixboehm)
 
-
 ## License
 
 MIT
-
 
 ## Copyright
 
