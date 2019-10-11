@@ -1,0 +1,63 @@
+FROM arm32v7/ubuntu:18.10 as build
+
+RUN apt-get update && apt-get install -y wget
+
+ENV WAIT_FOR_IT_DOWNLOAD=https://raw.githubusercontent.com/jdufner/wait-for-it/9730b3a4817084a2504a2f553b316cf211166acd/wait-for-it.sh
+ENV WAIT_FOR_IT_CHECKSUM=1352dacf4e3f97b023d5cebad1d56f317e31af1bfd06bc2fed83fe94f21c3455
+
+RUN cd /tmp && \
+  wget -O wait-for-it ${WAIT_FOR_IT_DOWNLOAD} && \
+  echo "${WAIT_FOR_IT_CHECKSUM} *wait-for-it" | sha256sum -c -
+
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.0.0/gomplate_linux-arm-slim
+ENV GOMPLATE_CHECKSUM=fb9bf19fb8e42aac690f724a3252bd5fe62322d620a8a1b1cb4308f6b684381c
+
+RUN cd /tmp && \
+  wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
+  echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c -
+
+ENV SU_EXEC_DOWNLOAD=https://github.com/tianon/gosu/releases/download/1.11/gosu-armhf
+ENV SU_EXEC_CHECKSUM=171b4a2decc920de0dd4f49278d3e14712da5fa48de57c556f99bcdabe03552e
+
+RUN cd /tmp && \
+  wget -O su-exec ${SU_EXEC_DOWNLOAD} && \
+  echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c -
+
+FROM arm32v7/ubuntu:18.10
+
+LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
+  org.label-schema.name="ownCloud Ubuntu" \
+  org.label-schema.vendor="ownCloud GmbH" \
+  org.label-schema.schema-version="1.0"
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV TERM xterm
+
+RUN apt-get update -y && \
+  apt-get upgrade -y && \
+  apt-get install -y \
+    ca-certificates \
+    bash \
+    vim \
+    curl \
+    wget \
+    procps \
+    apt-utils \
+    apt-transport-https \
+    iputils-ping \
+    bzip2 \
+    unzip \
+    cron \
+    git-core \
+    sshpass \
+    tree \
+    gnupg && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY ./overlay /
+CMD ["bash"]
+
+COPY --from=build /tmp/wait-for-it /usr/bin/wait-for-it
+COPY --from=build /tmp/gomplate /usr/bin/gomplate
+COPY --from=build /tmp/su-exec /usr/bin/su-exec
