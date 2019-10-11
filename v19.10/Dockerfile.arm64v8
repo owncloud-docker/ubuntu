@@ -1,5 +1,7 @@
 FROM arm64v8/ubuntu:19.10 as build
 
+RUN apt-get update && apt-get install -y wget
+
 ENV WAIT_FOR_IT_DOWNLOAD=https://raw.githubusercontent.com/jdufner/wait-for-it/9730b3a4817084a2504a2f553b316cf211166acd/wait-for-it.sh
 ENV WAIT_FOR_IT_CHECKSUM=1352dacf4e3f97b023d5cebad1d56f317e31af1bfd06bc2fed83fe94f21c3455
 
