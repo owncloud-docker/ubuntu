@@ -1,5 +1,10 @@
 # Changelog
 
+## 2019-10-11
+
+* Changed
+  * Set aliases for release names
+
 ## 2019-10-08
 
 * Changed
