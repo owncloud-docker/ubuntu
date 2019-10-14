@@ -3,13 +3,13 @@ set -eo pipefail
 
 while getopts "t:" o
 do
-    case ${o} in
-        t)
-            TIMEOUT=${OPTARG}
-            ;;
-        *)
-        		;;
-    esac
+	case ${o} in
+		t)
+			TIMEOUT=${OPTARG}
+			;;
+		*)
+			;;
+	esac
 done
 
 shift $((OPTIND-1))
