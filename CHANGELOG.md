@@ -1,5 +1,10 @@
 # Changelog
 
+## 2019-10-14
+
+* Fixed
+  * Downloaded tools got to be executable
+
 ## 2019-10-11
 
 * Changed

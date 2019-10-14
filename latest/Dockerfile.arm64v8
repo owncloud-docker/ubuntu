@@ -7,21 +7,24 @@ ENV WAIT_FOR_IT_CHECKSUM=1352dacf4e3f97b023d5cebad1d56f317e31af1bfd06bc2fed83fe9
 
 RUN cd /tmp && \
   wget -O wait-for-it ${WAIT_FOR_IT_DOWNLOAD} && \
-  echo "${WAIT_FOR_IT_CHECKSUM} *wait-for-it" | sha256sum -c -
+  echo "${WAIT_FOR_IT_CHECKSUM} *wait-for-it" | sha256sum -c - && \
+  chmod +x wait-for-it
 
 ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.0.0/gomplate_linux-arm64-slim
 ENV GOMPLATE_CHECKSUM=af5c65b19ac4cc72a4441e1cb286cfd9114a5fa5a30a8311cbba4d20f23255e0
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
-  echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c -
+  echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c - && \
+  chmod +x gomplate
 
 ENV SU_EXEC_DOWNLOAD=https://github.com/tianon/gosu/releases/download/1.11/gosu-arm64
 ENV SU_EXEC_CHECKSUM=5e279972a1c7adee65e3b5661788e8706594b458b7ce318fecbd392492cc4dbd
 
 RUN cd /tmp && \
   wget -O su-exec ${SU_EXEC_DOWNLOAD} && \
-  echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c -
+  echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c - && \
+  chmod +x su-exec
 
 FROM arm64v8/ubuntu:18.04
 
