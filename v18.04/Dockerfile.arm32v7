@@ -2,14 +2,6 @@ FROM arm32v7/ubuntu:18.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV WAIT_FOR_IT_DOWNLOAD=https://raw.githubusercontent.com/jdufner/wait-for-it/9730b3a4817084a2504a2f553b316cf211166acd/wait-for-it.sh
-ENV WAIT_FOR_IT_CHECKSUM=1352dacf4e3f97b023d5cebad1d56f317e31af1bfd06bc2fed83fe94f21c3455
-
-RUN cd /tmp && \
-  wget -O wait-for-it ${WAIT_FOR_IT_DOWNLOAD} && \
-  echo "${WAIT_FOR_IT_CHECKSUM} *wait-for-it" | sha256sum -c - && \
-  chmod +x wait-for-it
-
 ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.0.0/gomplate_linux-arm-slim
 ENV GOMPLATE_CHECKSUM=fb9bf19fb8e42aac690f724a3252bd5fe62322d620a8a1b1cb4308f6b684381c
 
@@ -25,6 +17,17 @@ RUN cd /tmp && \
   wget -O su-exec ${SU_EXEC_DOWNLOAD} && \
   echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c - && \
   chmod +x su-exec
+
+FROM arm32v7/golang:1.13 as golang
+
+ENV CGO_ENABLED=0
+ENV WAIT_FOR_REPO=https://github.com/alioygur/wait-for
+ENV WAIT_FOR_COMMIT=a2569b146c861c574e62d416699b78efe66ed883
+
+RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
+  cd /go/wait-for && \
+  git checkout ${WAIT_FOR_COMMIT} && \
+  go build -v -a -installsuffix cgo -o /tmp/wait-for
 
 FROM arm32v7/ubuntu:18.04
 
@@ -61,6 +64,6 @@ RUN apt-get update -y && \
 COPY ./overlay /
 CMD ["bash"]
 
-COPY --from=build /tmp/wait-for-it /usr/bin/wait-for-it
 COPY --from=build /tmp/gomplate /usr/bin/gomplate
 COPY --from=build /tmp/su-exec /usr/bin/su-exec
+COPY --from=golang /tmp/wait-for /usr/bin/wait-for

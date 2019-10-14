@@ -4,6 +4,8 @@
 
 * Fixed
   * Downloaded tools got to be executable
+* Changed
+  * Replace wait-for-it with a static binary
 
 ## 2019-10-11
 
