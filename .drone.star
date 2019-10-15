@@ -63,10 +63,10 @@ def docker(ctx, version, arch):
   else:
     settings = {
       'username': {
-        'from_secret': 'docker_username'
+        'from_secret': 'public_username'
       },
       'password': {
-        'from_secret': 'docker_password'
+        'from_secret': 'public_password'
       },
       'tags': tag,
       'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
@@ -127,10 +127,10 @@ def manifest(ctx, version, arches):
         'pull': 'always',
         'settings': {
           'username': {
-            'from_secret': 'docker_username',
+            'from_secret': 'public_username',
           },
           'password': {
-            'from_secret': 'docker_password',
+            'from_secret': 'public_password',
           },
           'spec': '%s/manifest.tmpl' % prefix,
           'ignore_missing': 'true',
@@ -200,7 +200,7 @@ def rocketchat(ctx):
         'failure': 'ignore',
         'settings': {
           'webhook': {
-            'from_secret': 'slack_webhook',
+            'from_secret': 'public_rocketchat',
           },
           'channel': 'docker',
         },
