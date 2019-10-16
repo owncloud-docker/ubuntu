@@ -52,27 +52,7 @@ def docker(ctx, version, arch):
     platform = 'arm'
     variant = 'v7'
 
-  if ctx.build.ref == "refs/heads/master":
-    settings = {
-      'username': {
-        'from_secret': 'public_username',
-      },
-      'password': {
-        'from_secret': 'public_password',
-      },
-      'tags': tag,
-      'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
-      'repo': 'owncloud/ubuntu',
-      'context': prefix,
-    }
-  else:
-    settings = {
-      'dry_run': True,
-      'tags': tag,
-      'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
-      'repo': 'owncloud/ubuntu',
-      'context': prefix,
-    }
+  prepublish = '%s-%s' % (ctx.build.commit, tag)
 
   return {
     'kind': 'pipeline',
@@ -85,17 +65,122 @@ def docker(ctx, version, arch):
     },
     'steps': [
       {
-        'name': 'build',
+        'name': 'prepublish',
         'image': 'plugins/docker',
         'pull': 'always',
-        'settings': settings,
+        'settings': {
+          'username': {
+            'from_secret': 'internal_username',
+          },
+          'password': {
+            'from_secret': 'internal_password',
+          },
+          'tags': prepublish,
+          'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
+          'repo': 'registry.drone.owncloud.com/build/ubuntu',
+          'registry': 'registry.drone.owncloud.com',
+          'context': prefix,
+          'purge': False,
+        },
+        'volumes': [
+          {
+            'name': 'docker',
+            'path': '/var/lib/docker'
+          },
+        ],
       },
+      {
+        'name': 'clair',
+        'image': 'toolhippie/klar:latest',
+        'pull': 'always',
+        'environment': {
+          'CLAIR_ADDR': 'clair.owncloud.com',
+          'CLAIR_OUTPUT': 'High',
+          'CLAIR_TIMEOUT': '5',
+          'DOCKER_USER': {
+            'from_secret': 'internal_username',
+          },
+          'DOCKER_PASSWORD': {
+            'from_secret': 'internal_password',
+          },
+        },
+        'commands': [
+          'klar registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
+        ],
+      },
+      {
+        'name': 'test',
+        'image': 'registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
+        'pull': 'always',
+        'commands': [
+          'bash --version',
+        ],
+      },
+      {
+        'name': 'publish',
+        'image': 'plugins/docker',
+        'pull': 'always',
+        'settings': {
+          'username': {
+            'from_secret': 'public_username',
+          },
+          'password': {
+            'from_secret': 'public_password',
+          },
+          'tags': tag,
+          'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
+          'repo': 'owncloud/ubuntu',
+          'context': prefix,
+        },
+        'volumes': [
+          {
+            'name': 'docker',
+            'path': '/var/lib/docker'
+          },
+        ],
+        'when': {
+          'ref': [
+            'refs/heads/master',
+          ],
+        },
+      },
+      {
+        'name': 'cleanup',
+        'image': 'toolhippie/reg:latest',
+        'pull': 'always',
+        'failure': 'ignore',
+        'environment': {
+          'DOCKER_USER': {
+            'from_secret': 'internal_username',
+          },
+          'DOCKER_PASSWORD': {
+            'from_secret': 'internal_password',
+          },
+        },
+        'commands': [
+          'reg rm --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
+        ],
+        'when': {
+          'status': [
+            'success',
+            'failure'
+          ]
+        }
+      },
+    ],
+    'volumes': [
+      {
+        'name': 'docker',
+        'temp': {},
+      },
+    ],
+    'image_pull_secrets': [
+      'dockerconfigjson',
     ],
     'depends_on': [],
     'trigger': {
       'ref': [
         'refs/heads/master',
-        'refs/tags/**',
         'refs/pull/**',
       ],
     },
