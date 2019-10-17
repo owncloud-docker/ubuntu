@@ -90,6 +90,22 @@ def docker(ctx, version, arch):
         ],
       },
       {
+        'name': 'sleep',
+        'image': 'toolhippie/reg:latest',
+        'pull': 'always',
+        'environment': {
+          'DOCKER_USER': {
+            'from_secret': 'internal_username',
+          },
+          'DOCKER_PASSWORD': {
+            'from_secret': 'internal_password',
+          },
+        },
+        'commands': [
+          'retry -- reg digest --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
+        ],
+      },
+      {
         'name': 'test',
         'image': 'registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
         'pull': 'always',
