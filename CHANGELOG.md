@@ -1,5 +1,10 @@
 # Changelog
 
+## 2019-10-17
+
+* Added
+  * Add shell script for a retry command
+
 ## 2019-10-14
 
 * Fixed
