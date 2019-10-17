@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as build
+FROM amd64/ubuntu:18.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -18,7 +18,7 @@ RUN cd /tmp && \
   echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c - && \
   chmod +x su-exec
 
-FROM golang:1.13 as golang
+FROM amd64/golang:1.13 as golang
 
 ENV CGO_ENABLED=0
 ENV WAIT_FOR_REPO=https://github.com/alioygur/wait-for
@@ -29,7 +29,7 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
   git checkout ${WAIT_FOR_COMMIT} && \
   go build -v -a -installsuffix cgo -o /tmp/wait-for
 
-FROM ubuntu:18.04
+FROM amd64/ubuntu:18.04
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \
