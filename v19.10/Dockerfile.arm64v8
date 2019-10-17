@@ -1,4 +1,4 @@
-FROM arm64v8/ubuntu:19.10 as build
+FROM arm64v8/ubuntu:19.10@sha256:bef6424c8693f86a37a5ad644a0bc29115abec7f9ffdb7ccad695999c3f0fe20 as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -29,7 +29,7 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
   git checkout ${WAIT_FOR_COMMIT} && \
   go build -v -a -installsuffix cgo -o /tmp/wait-for
 
-FROM arm64v8/ubuntu:19.10
+FROM arm64v8/ubuntu:19.10@sha256:bef6424c8693f86a37a5ad644a0bc29115abec7f9ffdb7ccad695999c3f0fe20
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \

@@ -1,4 +1,4 @@
-FROM arm32v7/ubuntu:16.04 as build
+FROM arm32v7/ubuntu:16.04@sha256:86c053e42dbcc4bee8fd71dfec9babfe4068b2ff5151ebedf6737053cb97fd77 as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -29,7 +29,7 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
   git checkout ${WAIT_FOR_COMMIT} && \
   go build -v -a -installsuffix cgo -o /tmp/wait-for
 
-FROM arm32v7/ubuntu:16.04
+FROM arm32v7/ubuntu:16.04@sha256:86c053e42dbcc4bee8fd71dfec9babfe4068b2ff5151ebedf6737053cb97fd77
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \
