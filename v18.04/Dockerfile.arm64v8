@@ -1,4 +1,4 @@
-FROM arm64v8/ubuntu:18.04@sha256:a547e88f518355c22df160dd879cf7452b078ad445eb2c307a0787e0945b18d4 as build
+FROM arm64v8/ubuntu:18.10@sha256:f87f2b3b33c0bcfec89ba4c974722c7a5347d058bf32b7e903710e545f6ecf47 as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -29,7 +29,7 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
   git checkout ${WAIT_FOR_COMMIT} && \
   go build -v -a -installsuffix cgo -o /tmp/wait-for
 
-FROM arm64v8/ubuntu:18.04@sha256:a547e88f518355c22df160dd879cf7452b078ad445eb2c307a0787e0945b18d4
+FROM arm64v8/ubuntu:18.10@sha256:f87f2b3b33c0bcfec89ba4c974722c7a5347d058bf32b7e903710e545f6ecf47
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \
