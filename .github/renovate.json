@@ -6,11 +6,5 @@
   ],
   "ignorePaths": [
     "archive/"
-  ],
-  "dockerfile": {
-    "fileMatch": [
-      "latest/Dockerfile.*"
-      "v.*/Dockerfile.*"
-    ]
-  }
+  ]
 }
