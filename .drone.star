@@ -90,13 +90,10 @@ def docker(ctx, version, arch):
         ],
       },
       {
-        'name': 'clair',
-        'image': 'toolhippie/klar:latest',
+        'name': 'sleep',
+        'image': 'toolhippie/reg:latest',
         'pull': 'always',
         'environment': {
-          'CLAIR_ADDR': 'clair.owncloud.com',
-          'CLAIR_OUTPUT': 'High',
-          'CLAIR_TIMEOUT': '5',
           'DOCKER_USER': {
             'from_secret': 'internal_username',
           },
@@ -105,15 +102,7 @@ def docker(ctx, version, arch):
           },
         },
         'commands': [
-          'klar registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
-        ],
-      },
-      {
-        'name': 'test',
-        'image': 'registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
-        'pull': 'always',
-        'commands': [
-          'bash --version',
+          'retry -- reg digest --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
         ],
       },
       {
