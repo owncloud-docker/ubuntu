@@ -1,4 +1,4 @@
-FROM arm32v7/ubuntu:19.04@sha256:d9a5386618e3026561e951b979c18aaf8894b57a8e018074988f4156d7083add as build
+FROM arm32v7/ubuntu:19.10@sha256:3f517c5deb774051dd167a75208c7b192afdf7e3076cfa47f690b6ff80b77df4 as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -29,7 +29,7 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
   git checkout ${WAIT_FOR_COMMIT} && \
   go build -v -a -installsuffix cgo -o /tmp/wait-for
 
-FROM arm32v7/ubuntu:19.04@sha256:d9a5386618e3026561e951b979c18aaf8894b57a8e018074988f4156d7083add
+FROM arm32v7/ubuntu:19.10@sha256:3f517c5deb774051dd167a75208c7b192afdf7e3076cfa47f690b6ff80b77df4
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \
