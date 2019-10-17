@@ -1,4 +1,4 @@
-FROM amd64/ubuntu:16.04@sha256:c0ae44d97c088026f44b1a4ef9da06d3fa8e771b95d95bffbcbddea6d1e450b7 as build
+FROM amd64/ubuntu:16.10@sha256:8dc9652808dc091400d7d5983949043a9f9c7132b15c14814275d25f94bca18a as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -29,7 +29,7 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
   git checkout ${WAIT_FOR_COMMIT} && \
   go build -v -a -installsuffix cgo -o /tmp/wait-for
 
-FROM amd64/ubuntu:16.04@sha256:c0ae44d97c088026f44b1a4ef9da06d3fa8e771b95d95bffbcbddea6d1e450b7
+FROM amd64/ubuntu:16.10@sha256:8dc9652808dc091400d7d5983949043a9f9c7132b15c14814275d25f94bca18a
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \
