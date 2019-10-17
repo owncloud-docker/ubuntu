@@ -106,25 +106,6 @@ def docker(ctx, version, arch):
         ],
       },
       {
-        'name': 'clair',
-        'image': 'toolhippie/klar:latest',
-        'pull': 'always',
-        'environment': {
-          'CLAIR_ADDR': 'clair.owncloud.com',
-          'CLAIR_OUTPUT': 'High',
-          'CLAIR_TIMEOUT': '5',
-          'DOCKER_USER': {
-            'from_secret': 'internal_username',
-          },
-          'DOCKER_PASSWORD': {
-            'from_secret': 'internal_password',
-          },
-        },
-        'commands': [
-          'klar registry.drone.owncloud.com/build/base:%s' % prepublish,
-        ],
-      },
-      {
         'name': 'publish',
         'image': 'plugins/docker',
         'pull': 'always',
