@@ -34,10 +34,10 @@ def main(ctx):
 
 def docker(ctx, version, arch):
   if version == 'latest':
-    prefix = 'latest'
+    suffix = 'latest'
     tag = arch
   else:
-    prefix = 'v%s' % version
+    suffix = 'v%s' % version
     tag = '%s-%s' % (version, arch)
 
   if arch == 'amd64':
@@ -57,7 +57,7 @@ def docker(ctx, version, arch):
   return {
     'kind': 'pipeline',
     'type': 'docker',
-    'name': '%s-%s' % (arch, prefix),
+    'name': '%s-%s' % (arch, suffix),
     'platform': {
       'os': 'linux',
       'arch': platform,
@@ -76,16 +76,16 @@ def docker(ctx, version, arch):
             'from_secret': 'internal_password',
           },
           'tags': prepublish,
-          'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
+          'dockerfile': '%s/Dockerfile.%s' % (suffix, arch),
           'repo': 'registry.drone.owncloud.com/build/ubuntu',
           'registry': 'registry.drone.owncloud.com',
-          'context': prefix,
+          'context': suffix,
           'purge': False,
         },
         'volumes': [
           {
             'name': 'docker',
-            'path': '/var/lib/docker'
+            'path': '/var/lib/docker',
           },
         ],
       },
@@ -117,14 +117,14 @@ def docker(ctx, version, arch):
             'from_secret': 'public_password',
           },
           'tags': tag,
-          'dockerfile': '%s/Dockerfile.%s' % (prefix, arch),
+          'dockerfile': '%s/Dockerfile.%s' % (suffix, arch),
           'repo': 'owncloud/ubuntu',
-          'context': prefix,
+          'context': suffix,
         },
         'volumes': [
           {
             'name': 'docker',
-            'path': '/var/lib/docker'
+            'path': '/var/lib/docker',
           },
         ],
         'when': {
@@ -152,9 +152,9 @@ def docker(ctx, version, arch):
         'when': {
           'status': [
             'success',
-            'failure'
-          ]
-        }
+            'failure',
+          ],
+        },
       },
     ],
     'volumes': [
@@ -177,19 +177,19 @@ def docker(ctx, version, arch):
 
 def manifest(ctx, version, arches):
   if version == 'latest':
-    prefix = 'latest'
+    suffix = 'latest'
   else:
-    prefix = 'v%s' % version
+    suffix = 'v%s' % version
 
   depends = []
 
   for arch in arches:
-    depends.append('%s-%s' % (arch, prefix))
+    depends.append('%s-%s' % (arch, suffix))
 
   return {
     'kind': 'pipeline',
     'type': 'docker',
-    'name': 'manifest-%s' % prefix,
+    'name': 'manifest-%s' % suffix,
     'platform': {
       'os': 'linux',
       'arch': 'amd64',
@@ -206,7 +206,7 @@ def manifest(ctx, version, arches):
           'password': {
             'from_secret': 'public_password',
           },
-          'spec': '%s/manifest.tmpl' % prefix,
+          'spec': '%s/manifest.tmpl' % suffix,
           'ignore_missing': 'true',
         },
       },
@@ -216,8 +216,8 @@ def manifest(ctx, version, arches):
       'ref': [
         'refs/heads/master',
         'refs/tags/**',
-      ]
-    }
+      ],
+    },
   }
 
 def microbadger(ctx):
