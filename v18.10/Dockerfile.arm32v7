@@ -1,4 +1,4 @@
-FROM arm32v7/ubuntu:18.10@sha256:3a3c28b70daf30b7b85a626fb4774eb0dd79c6d837a36fcce80cdb7fd63506f9 as build
+FROM arm32v7/ubuntu:18.10 as build
 
 RUN apt-get update && apt-get install -y wget
 
@@ -26,7 +26,7 @@ RUN cd /tmp && \
   echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c - && \
   chmod +x su-exec
 
-FROM arm32v7/ubuntu:18.10@sha256:3a3c28b70daf30b7b85a626fb4774eb0dd79c6d837a36fcce80cdb7fd63506f9
+FROM arm32v7/ubuntu:18.10
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
   org.label-schema.name="ownCloud Ubuntu" \
