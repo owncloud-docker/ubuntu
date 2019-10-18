@@ -18,7 +18,7 @@ RUN cd /tmp && \
   echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c - && \
   chmod +x su-exec
 
-FROM amd64/golang:1.13@sha256:a50a9364e9170ab5f5b03389ed33b9271b4a7b6bbb0ab41c4035adb3078927bc as golang
+FROM amd64/golang:1.13@sha256:3d607e3e3a9dd7d1094b634e6d1f69ae65f5d9a2193d3b3b9fd46b780bd221fe as golang
 
 ENV CGO_ENABLED=0
 ENV WAIT_FOR_REPO=https://github.com/alioygur/wait-for
