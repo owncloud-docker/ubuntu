@@ -1,6 +1,6 @@
 # ownCloud: Ubuntu
 
-[![Build Status](https://drone.owncloud.com/api/badges/owncloud-docker/ubuntu/status.svg)](https://drone.owncloud.com/owncloud-docker/ubuntu)
+[![Build Status](https://cloud.drone.io/api/badges/owncloud-docker/ubuntu/status.svg)](https://cloud.drone.io/owncloud-docker/ubuntu)
 [![](https://images.microbadger.com/badges/image/owncloud/ubuntu:latest.svg)](https://microbadger.com/images/owncloud/ubuntu:latest "Get your own image badge on microbadger.com")
 
 This is our minimal customized [Ubuntu](http://www.ubuntu.com/) base image based on [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/). It's used for most of our Docker images.
