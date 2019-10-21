@@ -14,12 +14,50 @@ def main(ctx):
     'arm64v8',
   ]
 
+  config = {
+    'version': None,
+    'arch': None,
+  }
+
   stages = []
 
   for version in versions:
+    config['version'] = version
+
+    if config['version'] == 'latest':
+      config['path'] = 'latest'
+    else:
+      config['path'] = 'v%s' % config['version']
+
+    m = manifest(config)
+    inner = []
+
     for arch in arches:
-      stages.append(docker(ctx, version, arch))
-    stages.append(manifest(ctx, version, arches))
+      config['arch'] = arch
+
+      if config['version'] == 'latest':
+        config['tag'] = arch
+      else:
+        config['tag'] = '%s-%s' % (config['version'], arch)
+
+      if config['arch'] == 'amd64':
+        config['platform'] = 'amd64'
+
+      if config['arch'] == 'arm64v8':
+        config['platform'] = 'arm64'
+
+      if config['arch'] == 'arm32v7':
+        config['platform'] = 'arm'
+
+      config['internal'] = '%s-%s' % (ctx.build.commit, config['tag'])
+
+      d = docker(config)
+      m['depends_on'].append(d['name'])
+
+      inner.append(d)
+
+    inner.append(m)
+    stages.extend(inner)
 
   after = [
     microbadger(ctx),
@@ -32,140 +70,19 @@ def main(ctx):
 
   return stages + after
 
-def docker(ctx, version, arch):
-  if version == 'latest':
-    suffix = 'latest'
-    tag = arch
-  else:
-    suffix = 'v%s' % version
-    tag = '%s-%s' % (version, arch)
-
-  if arch == 'amd64':
-    platform = 'amd64'
-    variant = ''
-
-  if arch == 'arm64v8':
-    platform = 'arm64'
-    variant = 'v8'
-
-  if arch == 'arm32v7':
-    platform = 'arm'
-    variant = 'v7'
-
-  prepublish = '%s-%s' % (ctx.build.commit, tag)
-
+def docker(config):
   return {
     'kind': 'pipeline',
     'type': 'docker',
-    'name': '%s-%s' % (arch, suffix),
+    'name': '%s-%s' % (config['arch'], config['path']),
     'platform': {
       'os': 'linux',
-      'arch': platform,
-      'variant': variant,
+      'arch': config['platform'],
     },
-    'steps': [
-      {
-        'name': 'prepublish',
-        'image': 'plugins/docker',
-        'pull': 'always',
-        'settings': {
-          'username': {
-            'from_secret': 'internal_username',
-          },
-          'password': {
-            'from_secret': 'internal_password',
-          },
-          'tags': prepublish,
-          'dockerfile': '%s/Dockerfile.%s' % (suffix, arch),
-          'repo': 'registry.drone.owncloud.com/build/ubuntu',
-          'registry': 'registry.drone.owncloud.com',
-          'context': suffix,
-          'purge': False,
-        },
-        'volumes': [
-          {
-            'name': 'docker',
-            'path': '/var/lib/docker',
-          },
-        ],
-      },
-      {
-        'name': 'sleep',
-        'image': 'toolhippie/reg:latest',
-        'pull': 'always',
-        'environment': {
-          'DOCKER_USER': {
-            'from_secret': 'internal_username',
-          },
-          'DOCKER_PASSWORD': {
-            'from_secret': 'internal_password',
-          },
-        },
-        'commands': [
-          'retry -- reg digest --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
-        ],
-      },
-      {
-        'name': 'publish',
-        'image': 'plugins/docker',
-        'pull': 'always',
-        'settings': {
-          'username': {
-            'from_secret': 'public_username',
-          },
-          'password': {
-            'from_secret': 'public_password',
-          },
-          'tags': tag,
-          'dockerfile': '%s/Dockerfile.%s' % (suffix, arch),
-          'repo': 'owncloud/ubuntu',
-          'context': suffix,
-          'pull_image': False,
-        },
-        'volumes': [
-          {
-            'name': 'docker',
-            'path': '/var/lib/docker',
-          },
-        ],
-        'when': {
-          'ref': [
-            'refs/heads/master',
-          ],
-        },
-      },
-      {
-        'name': 'cleanup',
-        'image': 'toolhippie/reg:latest',
-        'pull': 'always',
-        'failure': 'ignore',
-        'environment': {
-          'DOCKER_USER': {
-            'from_secret': 'internal_username',
-          },
-          'DOCKER_PASSWORD': {
-            'from_secret': 'internal_password',
-          },
-        },
-        'commands': [
-          'reg rm --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/build/ubuntu:%s' % prepublish,
-        ],
-        'when': {
-          'status': [
-            'success',
-            'failure',
-          ],
-        },
-      },
-    ],
-    'volumes': [
-      {
-        'name': 'docker',
-        'temp': {},
-      },
-    ],
+    'steps': steps(config),
+    'volumes': volumes(config),
     'image_pull_secrets': [
-      'dockerconfigjson',
+      'registries',
     ],
     'depends_on': [],
     'trigger': {
@@ -176,21 +93,11 @@ def docker(ctx, version, arch):
     },
   }
 
-def manifest(ctx, version, arches):
-  if version == 'latest':
-    suffix = 'latest'
-  else:
-    suffix = 'v%s' % version
-
-  depends = []
-
-  for arch in arches:
-    depends.append('%s-%s' % (arch, suffix))
-
+def manifest(config):
   return {
     'kind': 'pipeline',
     'type': 'docker',
-    'name': 'manifest-%s' % suffix,
+    'name': 'manifest-%s' % config['path'],
     'platform': {
       'os': 'linux',
       'arch': 'amd64',
@@ -207,12 +114,12 @@ def manifest(ctx, version, arches):
           'password': {
             'from_secret': 'public_password',
           },
-          'spec': '%s/manifest.tmpl' % suffix,
+          'spec': '%s/manifest.tmpl' % config['path'],
           'ignore_missing': 'true',
         },
       },
     ],
-    'depends_on': depends,
+    'depends_on': [],
     'trigger': {
       'ref': [
         'refs/heads/master',
@@ -221,7 +128,7 @@ def manifest(ctx, version, arches):
     },
   }
 
-def microbadger(ctx):
+def microbadger(config):
   return {
     'kind': 'pipeline',
     'type': 'docker',
@@ -255,7 +162,7 @@ def microbadger(ctx):
     },
   }
 
-def rocketchat(ctx):
+def rocketchat(config):
   return {
     'kind': 'pipeline',
     'type': 'docker',
@@ -293,3 +200,115 @@ def rocketchat(ctx):
       ],
     },
   }
+
+def prepublish(config):
+  return [{
+    'name': 'prepublish',
+    'image': 'plugins/docker',
+    'pull': 'always',
+    'settings': {
+      'username': {
+        'from_secret': 'internal_username',
+      },
+      'password': {
+        'from_secret': 'internal_password',
+      },
+      'tags': config['internal'],
+      'dockerfile': '%s/Dockerfile.%s' % (config['path'], config['arch']),
+      'repo': 'registry.drone.owncloud.com/owncloud/ubuntu',
+      'registry': 'registry.drone.owncloud.com',
+      'context': config['path'],
+      'purge': False,
+    },
+    'volumes': [
+      {
+        'name': 'docker',
+        'path': '/var/lib/docker',
+      },
+    ],
+  }]
+
+def sleep(config):
+  return [{
+    'name': 'sleep',
+    'image': 'toolhippie/reg:latest',
+    'pull': 'always',
+    'environment': {
+      'DOCKER_USER': {
+        'from_secret': 'internal_username',
+      },
+      'DOCKER_PASSWORD': {
+        'from_secret': 'internal_password',
+      },
+    },
+    'commands': [
+      'retry -- reg digest --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/owncloud/ubuntu:%s' % config['internal'],
+    ],
+  }]
+
+def publish(config):
+  return [{
+    'name': 'publish',
+    'image': 'plugins/docker',
+    'pull': 'always',
+    'settings': {
+      'username': {
+        'from_secret': 'public_username',
+      },
+      'password': {
+        'from_secret': 'public_password',
+      },
+      'tags': config['tag'],
+      'dockerfile': '%s/Dockerfile.%s' % (config['path'], config['arch']),
+      'repo': 'owncloud/ubuntu',
+      'context': config['path'],
+      'pull_image': False,
+    },
+    'volumes': [
+      {
+        'name': 'docker',
+        'path': '/var/lib/docker',
+      },
+    ],
+    'when': {
+      'ref': [
+        'refs/heads/master',
+      ],
+    },
+  }]
+
+def cleanup(config):
+  return [{
+    'name': 'cleanup',
+    'image': 'toolhippie/reg:latest',
+    'pull': 'always',
+    'failure': 'ignore',
+    'environment': {
+      'DOCKER_USER': {
+        'from_secret': 'internal_username',
+      },
+      'DOCKER_PASSWORD': {
+        'from_secret': 'internal_password',
+      },
+    },
+    'commands': [
+      'reg rm --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/owncloud/ubuntu:%s' % config['internal'],
+    ],
+    'when': {
+      'status': [
+        'success',
+        'failure',
+      ],
+    },
+  }]
+
+def volumes(config):
+  return [
+    {
+      'name': 'docker',
+      'temp': {},
+    },
+  ]
+
+def steps(config):
+  return prepublish(config) + sleep(config) + publish(config) + cleanup(config)
