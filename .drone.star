@@ -60,8 +60,8 @@ def main(ctx):
     stages.extend(inner)
 
   after = [
-    microbadger(ctx),
-    rocketchat(ctx),
+    microbadger(config),
+    rocketchat(config),
   ]
 
   for s in stages:
