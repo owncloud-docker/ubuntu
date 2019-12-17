@@ -57,7 +57,7 @@ RUN apt-get update -y && \
     git-core \
     sshpass \
     tree \
-    jq
+    jq \
     gnupg && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
