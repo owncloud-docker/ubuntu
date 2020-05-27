@@ -1,6 +1,7 @@
 def main(ctx):
   versions = [
     'latest',
+    '20.04',
     '19.10',
     '18.04',
     '16.04',
@@ -33,7 +34,13 @@ def main(ctx):
     m = manifest(config)
     inner = []
 
-    for arch in arches:
+    if version == 'latest' or version == '20.04':
+      # skip arm32v7-20.04 while https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1867675
+      myarches = [ 'amd64', 'arm64v8' ]
+    else:
+      myarches = arches
+
+    for arch in myarches:
       config['arch'] = arch
 
       if config['version'] == 'latest':
