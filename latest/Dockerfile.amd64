@@ -2,8 +2,8 @@ FROM amd64/ubuntu:20.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.0.0/gomplate_linux-amd64-slim
-ENV GOMPLATE_CHECKSUM=ba6cf854da46f9d9a50d26ec7d4a8a8b24f65ecce54a8a93d23eb0b6e138d8eb
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.7.0/gomplate_linux-amd64-slim
+ENV GOMPLATE_CHECKSUM=edeafbade658f4cf8dde853b7b2d8b8441936587bded5d32444efee3d3be9b87
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
