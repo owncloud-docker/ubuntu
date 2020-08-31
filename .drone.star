@@ -37,6 +37,7 @@ def main(ctx):
     if version == 'latest' or version == '20.04':
       # skip arm32v7-20.04 while https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1867675
       myarches = [ 'amd64', 'arm64v8' ]
+      myarches = arches  # try re-enable arm32v7 to check if the upstream issue is fixed.
     else:
       myarches = arches
 
