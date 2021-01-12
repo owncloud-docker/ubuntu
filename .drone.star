@@ -266,12 +266,6 @@ def prepublish(config):
       'context': config['path'],
       'purge': False,
     },
-    'volumes': [
-      {
-        'name': 'docker',
-        'path': '/var/lib/docker',
-      },
-    ],
   }]
 
 def sleep(config):
@@ -310,12 +304,6 @@ def publish(config):
       'context': config['path'],
       'pull_image': False,
     },
-    'volumes': [
-      {
-        'name': 'docker',
-        'path': '/var/lib/docker',
-      },
-    ],
     'when': {
       'ref': [
         'refs/heads/master',
