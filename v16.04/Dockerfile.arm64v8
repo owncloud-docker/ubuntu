@@ -2,8 +2,8 @@ FROM arm64v8/ubuntu:16.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.0.0/gomplate_linux-arm64-slim
-ENV GOMPLATE_CHECKSUM=af5c65b19ac4cc72a4441e1cb286cfd9114a5fa5a30a8311cbba4d20f23255e0
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.8.0/gomplate_linux-arm64-slim
+ENV GOMPLATE_CHECKSUM=a8b76538f86162f81b4ce23a96414bee30f6639835eb53be8013d8cbed12fa11
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
