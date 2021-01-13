@@ -2,7 +2,6 @@ def main(ctx):
   versions = [
     'latest',
     '20.04',
-    '19.10',
     '18.04',
     '16.04',
   ]
@@ -267,12 +266,6 @@ def prepublish(config):
       'context': config['path'],
       'purge': False,
     },
-    'volumes': [
-      {
-        'name': 'docker',
-        'path': '/var/lib/docker',
-      },
-    ],
   }]
 
 def sleep(config):
@@ -311,12 +304,6 @@ def publish(config):
       'context': config['path'],
       'pull_image': False,
     },
-    'volumes': [
-      {
-        'name': 'docker',
-        'path': '/var/lib/docker',
-      },
-    ],
     'when': {
       'ref': [
         'refs/heads/master',
