@@ -244,7 +244,7 @@ def rocketchat(config):
 def prepublish(config):
   return [{
     'name': 'prepublish',
-    'image': 'thegeeklab/drone-docker:19',
+    'image': 'plugins/docker',
     'privileged': True,
     'pull': 'always',
     'settings': {
@@ -284,7 +284,7 @@ def sleep(config):
 def publish(config):
   return [{
     'name': 'publish',
-    'image': 'thegeeklab/drone-docker:19',
+    'image': 'plugins/docker',
     'privileged': True,
     'pull': 'always',
     'settings': {
