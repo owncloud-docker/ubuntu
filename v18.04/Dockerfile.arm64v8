@@ -3,7 +3,7 @@ FROM arm64v8/ubuntu:18.04 as build
 RUN apt-get update && apt-get install -y wget
 
 ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-arm64-slim
-ENV GOMPLATE_CHECKSUM=3fc4f88bfd68103d0489932d7fa65bd8590bca6bb6bf1c0e82c3b9f27deee267
+ENV GOMPLATE_CHECKSUM=d96a92c531fb1639d0936be5b0ab492efe1a3903b6660db73728389875ee515b
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \

@@ -3,7 +3,7 @@ FROM amd64/ubuntu:16.04 as build
 RUN apt-get update && apt-get install -y wget
 
 ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-amd64-slim
-ENV GOMPLATE_CHECKSUM=7dbabe30095f822ec38f5f70711ff121c26e588227da4cc05208417cfaf929cd
+ENV GOMPLATE_CHECKSUM=6a780f3c9fa55fa583833322b522e14a19f857f4a4058af1a65fac21b342447a
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
