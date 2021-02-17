@@ -3,7 +3,6 @@ def main(ctx):
     'latest',
     '20.04',
     '18.04',
-    '16.04',
   ]
 
   arches = [
