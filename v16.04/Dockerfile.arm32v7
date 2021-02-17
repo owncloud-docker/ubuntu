@@ -2,8 +2,8 @@ FROM arm32v7/ubuntu:16.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.8.0/gomplate_linux-armv7-slim
-ENV GOMPLATE_CHECKSUM=98661d408bb37d92c5318c354baba9bd602d6e2d51be4aae27b968025c5f4452
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7-slim
+ENV GOMPLATE_CHECKSUM=8fae2244bf96d8db1f48acc50a8b1d86a1bf69f1ba27e326933840759deb2b34
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
