@@ -33,13 +33,7 @@ def main(ctx):
     m = manifest(config)
     inner = []
 
-    if version == 'latest' or version == '20.04':
-      # skip arm32v7-20.04 while https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1867675
-      myarches = [ 'amd64', 'arm64v8' ]
-    else:
-      myarches = arches
-
-    for arch in myarches:
+    for arch in arches:
       config['arch'] = arch
 
       if config['version'] == 'latest':
@@ -251,6 +245,7 @@ def prepublish(config):
   return [{
     'name': 'prepublish',
     'image': 'plugins/docker',
+    'privileged': True,
     'pull': 'always',
     'settings': {
       'username': {
@@ -290,6 +285,7 @@ def publish(config):
   return [{
     'name': 'publish',
     'image': 'plugins/docker',
+    'privileged': True,
     'pull': 'always',
     'settings': {
       'username': {
