@@ -2,13 +2,13 @@ FROM amd64/ubuntu:20.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.7.0/gomplate_linux-amd64-slim
-ENV GOMPLATE_CHECKSUM=edeafbade658f4cf8dde853b7b2d8b8441936587bded5d32444efee3d3be9b87
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-amd64-slim
+ENV GOMPLATE_CHECKSUM=6a780f3c9fa55fa583833322b522e14a19f857f4a4058af1a65fac21b342447a
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
   echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c - && \
-  chmod +x gomplate
+  chmod +x gomplate && ./gomplate --version
 
 ENV SU_EXEC_DOWNLOAD=https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64
 ENV SU_EXEC_CHECKSUM=5b3b03713a888cee84ecbf4582b21ac9fd46c3d935ff2d7ea25dd5055d302d3c

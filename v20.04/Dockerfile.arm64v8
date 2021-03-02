@@ -2,13 +2,13 @@ FROM arm64v8/ubuntu:20.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-arm64-slim
-ENV GOMPLATE_CHECKSUM=d96a92c531fb1639d0936be5b0ab492efe1a3903b6660db73728389875ee515b
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.7.0/gomplate_linux-arm64-slim
+ENV GOMPLATE_CHECKSUM=82345969b05cd7041206e44341741737b1a8cfd5a20c1d6516bedcb076f08ed7
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
   echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c - && \
-  chmod +x gomplate
+  chmod +x gomplate && ./gomplate --version
 
 ENV SU_EXEC_DOWNLOAD=https://github.com/tianon/gosu/releases/download/1.11/gosu-arm64
 ENV SU_EXEC_CHECKSUM=5e279972a1c7adee65e3b5661788e8706594b458b7ce318fecbd392492cc4dbd

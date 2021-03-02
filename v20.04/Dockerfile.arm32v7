@@ -8,7 +8,7 @@ ENV GOMPLATE_CHECKSUM=c3d4dbc59955b1107b48e0018a7931374f3dc0da9536ae89f9091fce87
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
   echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c - && \
-  chmod +x gomplate
+  chmod +x gomplate && ./gomplate --version
 
 ENV SU_EXEC_DOWNLOAD=https://github.com/tianon/gosu/releases/download/1.11/gosu-armhf
 ENV SU_EXEC_CHECKSUM=171b4a2decc920de0dd4f49278d3e14712da5fa48de57c556f99bcdabe03552e
