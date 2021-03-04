@@ -2,8 +2,8 @@ FROM arm32v7/ubuntu:20.04 as build
 
 RUN apt-get update && apt-get install -y wget
 
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7-slim
-ENV GOMPLATE_CHECKSUM=c3d4dbc59955b1107b48e0018a7931374f3dc0da9536ae89f9091fce87740af4
+ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7
+ENV GOMPLATE_CHECKSUM=8fae2244bf96d8db1f48acc50a8b1d86a1bf69f1ba27e326933840759deb2b34
 
 RUN cd /tmp && \
   wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
