@@ -1,31 +1,42 @@
 # ownCloud: Ubuntu
 
-[![Build Status](https://drone.owncloud.com/api/badges/owncloud-docker/ubuntu/status.svg)](https://drone.owncloud.com/owncloud-docker/ubuntu)
-[![](https://images.microbadger.com/badges/image/owncloud/ubuntu:latest.svg)](https://microbadger.com/images/owncloud/ubuntu:latest "Get your own image badge on microbadger.com")
+[![Build Status](https://img.shields.io/drone/build/owncloud-docker/ubuntu?logo=drone&server=https%3A%2F%2Fdrone.owncloud.com)](https://drone.owncloud.com/owncloud-docker/ubuntu)
+[![Docker Hub](https://img.shields.io/docker/v/owncloud/ubuntu?logo=docker&label=dockerhub&sort=semver&logoColor=white)](https://hub.docker.com/r/owncloud/ubuntu)
+[![GitHub contributors](https://img.shields.io/github/contributors/owncloud-docker/ubuntu)](https://github.com/owncloud-docker/ubuntu/graphs/contributors)
+[![Source: GitHub](https://img.shields.io/badge/source-github-blue.svg?logo=github&logoColor=white)](https://github.com/owncloud-docker/ubuntu)
+[![License: MIT](https://img.shields.io/github/license/owncloud-docker/ubuntu)](https://github.com/owncloud-docker/ubuntu/blob/master/LICENSE)
 
-This is our minimal customized [Ubuntu](http://www.ubuntu.com/) base image based on [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/). It's used for most of our Docker images.
+This is our minimal customized Ubuntu base image based on the [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) image. It's used for most of our ownCloud Docker images.
 
-## Versions
+## Quick reference
 
-- [latest](./latest) available as `owncloud/ubuntu:latest`
-- [20.04](./v20.04) available as `owncloud/ubuntu:20.04`
-- [18.04](./v18.04) available as `owncloud/ubuntu:18.04`
+- **Where to file issues:**\
+  [owncloud-docker/ubuntu](https://github.com/owncloud-docker/ubuntu/issues)
 
-## Volumes
+- **Supported architectures:**\
+  `amd64`, `arm32v7`, `arm64v8`
+
+## Docker Tags and respective Dockerfile links
+
+- [`latest`](https://github.com/owncloud-docker/ubuntu/blob/master/latest/Dockerfile.amd64) available as `owncloud/ubuntu:latest`
+- [`20.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v20.04/Dockerfile.amd64) available as `owncloud/ubuntu:20.04`
+- [`18.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v18.04/Dockerfile.amd64) available as `owncloud/ubuntu:18.04`
+
+## Default volumes
 
 None
 
-## Ports
+## Exposed ports
 
 None
 
-## Available environment variables
+## Environment variables
 
 None
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/owncloud-docker/ubuntu/blob/master/LICENSE) file for details.
 
 ## Copyright
 
