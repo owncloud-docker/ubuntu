@@ -31,10 +31,12 @@ RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
 
 FROM amd64/ubuntu:18.04
 
-LABEL maintainer="ownCloud DevOps <devops@owncloud.com>" \
-  org.label-schema.name="ownCloud Ubuntu" \
-  org.label-schema.vendor="ownCloud GmbH" \
-  org.label-schema.schema-version="1.0"
+LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
+  org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>" \
+  org.opencontainers.image.title="ownCloud Ubuntu" \
+  org.opencontainers.image.url="https://hub.docker.com/r/owncloud/ubuntu" \
+  org.opencontainers.image.source="https://github.com/owncloud-docker/ubuntu" \
+  org.opencontainers.image.documentation="https://github.com/owncloud-docker/ubuntu"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
