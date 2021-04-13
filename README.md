@@ -6,7 +6,7 @@
 [![Source: GitHub](https://img.shields.io/badge/source-github-blue.svg?logo=github&logoColor=white)](https://github.com/owncloud-docker/ubuntu)
 [![License: MIT](https://img.shields.io/github/license/owncloud-docker/ubuntu)](https://github.com/owncloud-docker/ubuntu/blob/master/LICENSE)
 
-This is our minimal customized Ubuntu base image based on the [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) image. It's used for most of our ownCloud Docker images.
+ownCloud Docker Ubuntu base image based on the [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) image.
 
 ## Quick reference
 
