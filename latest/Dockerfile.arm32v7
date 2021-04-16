@@ -1,34 +1,3 @@
-FROM arm32v7/ubuntu:20.04 as build
-
-RUN apt-get update && apt-get install -y wget
-
-ENV GOMPLATE_DOWNLOAD=https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7
-ENV GOMPLATE_CHECKSUM=8fae2244bf96d8db1f48acc50a8b1d86a1bf69f1ba27e326933840759deb2b34
-
-RUN cd /tmp && \
-  wget -O gomplate ${GOMPLATE_DOWNLOAD} && \
-  echo "${GOMPLATE_CHECKSUM} *gomplate" | sha256sum -c - && \
-  chmod +x gomplate && ./gomplate --version
-
-ENV SU_EXEC_DOWNLOAD=https://github.com/tianon/gosu/releases/download/1.11/gosu-armhf
-ENV SU_EXEC_CHECKSUM=171b4a2decc920de0dd4f49278d3e14712da5fa48de57c556f99bcdabe03552e
-
-RUN cd /tmp && \
-  wget -O su-exec ${SU_EXEC_DOWNLOAD} && \
-  echo "${SU_EXEC_CHECKSUM} *su-exec" | sha256sum -c - && \
-  chmod +x su-exec
-
-FROM arm32v7/golang:1.13 as golang
-
-ENV CGO_ENABLED=0
-ENV WAIT_FOR_REPO=https://github.com/alioygur/wait-for
-ENV WAIT_FOR_COMMIT=a2569b146c861c574e62d416699b78efe66ed883
-
-RUN git clone ${WAIT_FOR_REPO} /go/wait-for && \
-  cd /go/wait-for && \
-  git checkout ${WAIT_FOR_COMMIT} && \
-  go build -v -a -installsuffix cgo -o /tmp/wait-for
-
 FROM arm32v7/ubuntu:20.04
 
 LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
@@ -40,6 +9,20 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
+
+ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.2/wait-for-linux-arm /usr/bin/wait-for
+
+ENV SU_EXEC_CHECKSUM=8768127e22410b74edf6bab39e732ff41f260d69b2e30891ade3634e9aa11b81
+ADD https://github.com/tianon/gosu/releases/download/1.12/gosu-armhf /usr/bin/su-exec
+
+ENV GOMPLATE_CHECKSUM=8fae2244bf96d8db1f48acc50a8b1d86a1bf69f1ba27e326933840759deb2b34
+ADD https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7 /usr/bin/gomplate
+
+RUN chmod +x /usr/bin/wait-for && \
+  echo "${SU_EXEC_CHECKSUM} /usr/bin/su-exec" | sha256sum -c - && \
+  chmod +x /usr/bin/su-exec && \
+  echo "${GOMPLATE_CHECKSUM} /usr/bin/gomplate" | sha256sum -c - && \
+  chmod +x /usr/bin/gomplate
 
 RUN apt-get update -y && \
   apt-get install -y \
@@ -65,7 +48,3 @@ RUN apt-get update -y && \
 
 COPY ./overlay /
 CMD ["bash"]
-
-COPY --from=build /tmp/gomplate /usr/bin/gomplate
-COPY --from=build /tmp/su-exec /usr/bin/su-exec
-COPY --from=golang /tmp/wait-for /usr/bin/wait-for
