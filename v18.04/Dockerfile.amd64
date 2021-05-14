@@ -43,6 +43,7 @@ RUN apt-get update -y && \
     tree \
     jq \
     gnupg && \
+    libnss-wrapper && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
