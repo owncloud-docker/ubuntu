@@ -16,7 +16,6 @@ def main(ctx):
     'arch': None,
     'downstream': [
       'owncloud-docker/php@master',
-      'owncloud-ci/nodejs@master',
     ],
     'description': 'ownCloud Ubuntu base image',
   }
