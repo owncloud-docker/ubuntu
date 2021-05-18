@@ -71,7 +71,7 @@ def main(ctx):
         for a in after:
             a["depends_on"].append(s["name"])
 
-    return checkStarlark() + stages + after
+    return [checkStarlark()] + stages + after
 
 def docker(config):
     return {
@@ -357,7 +357,7 @@ def volumes(config):
     ]
 
 def checkStarlark():
-    return [{
+    return {
         "kind": "pipeline",
         "type": "docker",
         "name": "check-starlark",
@@ -392,7 +392,7 @@ def checkStarlark():
                 "refs/pull/**",
             ],
         },
-    }]
+    }
 
 def steps(config):
     return prepublish(config) + sleep(config) + publish(config) + cleanup(config)
