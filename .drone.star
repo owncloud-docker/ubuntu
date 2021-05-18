@@ -54,6 +54,7 @@ def main(ctx):
             config["internal"] = "%s-%s-%s" % (ctx.build.commit, "${DRONE_BUILD_NUMBER}", config["tag"])
 
             d = docker(config)
+            d["depends_on"].append(checkStarlark()["name"])
             m["depends_on"].append(d["name"])
 
             inner.append(d)
@@ -70,7 +71,7 @@ def main(ctx):
         for a in after:
             a["depends_on"].append(s["name"])
 
-    return stages + after
+    return checkStarlark() + stages + after
 
 def docker(config):
     return {
@@ -354,6 +355,44 @@ def volumes(config):
             "temp": {},
         },
     ]
+
+def checkStarlark():
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "check-starlark",
+        "steps": [
+            {
+                "name": "format-check-starlark",
+                "image": "owncloudci/bazel-buildifier",
+                "pull": "always",
+                "commands": [
+                    "buildifier --mode=check .drone.star",
+                ],
+            },
+            {
+                "name": "show-diff",
+                "image": "owncloudci/bazel-buildifier",
+                "pull": "always",
+                "commands": [
+                    "buildifier --mode=fix .drone.star",
+                    "git diff",
+                ],
+                "when": {
+                    "status": [
+                        "failure",
+                    ],
+                },
+            },
+        ],
+        "depends_on": [],
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/pull/**",
+            ],
+        },
+    }]
 
 def steps(config):
     return prepublish(config) + sleep(config) + publish(config) + cleanup(config)
