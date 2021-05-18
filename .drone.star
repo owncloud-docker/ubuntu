@@ -18,6 +18,7 @@ def main(ctx):
       'owncloud-docker/php@master',
     ],
     'description': 'ownCloud Ubuntu base image',
+    'repo': ctx.repo.name,
   }
 
   stages = []
@@ -196,7 +197,7 @@ def documentation(config):
             'from_secret': 'public_username',
           },
           'PUSHRM_FILE': 'README.md',
-          'PUSHRM_TARGET': 'owncloud/${DRONE_REPO_NAME}',
+          'PUSHRM_TARGET': 'owncloud/%s' % config['repo'],
           'PUSHRM_SHORT': config['description'],
         },
         'when': {
@@ -270,7 +271,7 @@ def prepublish(config):
       },
       'tags': config['internal'],
       'dockerfile': '%s/Dockerfile.%s' % (config['path'], config['arch']),
-      'repo': 'registry.drone.owncloud.com/owncloud/ubuntu',
+      'repo': 'registry.drone.owncloud.com/owncloud/%s' % config['repo'],
       'registry': 'registry.drone.owncloud.com',
       'context': config['path'],
       'purge': False,
@@ -291,7 +292,7 @@ def sleep(config):
       },
     },
     'commands': [
-      'retry -- reg digest --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/owncloud/ubuntu:%s' % config['internal'],
+      "retry -- 'reg digest --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/owncloud/%s:%s'" % (config['repo'], config['internal']),
     ],
   }]
 
@@ -310,7 +311,7 @@ def publish(config):
       },
       'tags': config['tag'],
       'dockerfile': '%s/Dockerfile.%s' % (config['path'], config['arch']),
-      'repo': 'owncloud/ubuntu',
+      'repo': 'owncloud/%s' % config['repo'],
       'context': config['path'],
       'pull_image': False,
     },
@@ -336,7 +337,7 @@ def cleanup(config):
       },
     },
     'commands': [
-      'reg rm --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/owncloud/ubuntu:%s' % config['internal'],
+      'reg rm --username $DOCKER_USER --password $DOCKER_PASSWORD registry.drone.owncloud.com/owncloud/%s:%s' % (config['repo'], config['internal']),
     ],
     'when': {
       'status': [
