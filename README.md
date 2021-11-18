@@ -19,6 +19,7 @@ ownCloud Docker Ubuntu base image based on the [official Ubuntu](https://registr
 ## Docker Tags and respective Dockerfile links
 
 - [`latest`](https://github.com/owncloud-docker/ubuntu/blob/master/latest/Dockerfile.amd64) available as `owncloud/ubuntu:latest`
+- [`21.10`](https://github.com/owncloud-docker/ubuntu/blob/master/v21.10/Dockerfile.amd64) available as `owncloud/ubuntu:21.10`
 - [`20.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v20.04/Dockerfile.amd64) available as `owncloud/ubuntu:20.04`
 - [`18.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v18.04/Dockerfile.amd64) available as `owncloud/ubuntu:18.04`
 

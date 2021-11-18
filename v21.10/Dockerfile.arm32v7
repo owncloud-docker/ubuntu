@@ -1,0 +1,51 @@
+FROM arm32v7/ubuntu:21.10
+
+LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
+  org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>" \
+  org.opencontainers.image.title="ownCloud Ubuntu" \
+  org.opencontainers.image.url="https://hub.docker.com/r/owncloud/ubuntu" \
+  org.opencontainers.image.source="https://github.com/owncloud-docker/ubuntu" \
+  org.opencontainers.image.documentation="https://github.com/owncloud-docker/ubuntu"
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV TERM xterm
+
+ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.2/wait-for-linux-arm /usr/bin/wait-for
+
+ENV SU_EXEC_CHECKSUM=8768127e22410b74edf6bab39e732ff41f260d69b2e30891ade3634e9aa11b81
+ADD https://github.com/tianon/gosu/releases/download/1.12/gosu-armhf /usr/bin/su-exec
+
+ENV GOMPLATE_CHECKSUM=8fae2244bf96d8db1f48acc50a8b1d86a1bf69f1ba27e326933840759deb2b34
+ADD https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7 /usr/bin/gomplate
+
+RUN chmod +x /usr/bin/wait-for && \
+  echo "${SU_EXEC_CHECKSUM} /usr/bin/su-exec" | sha256sum -c - && \
+  chmod +x /usr/bin/su-exec && \
+  echo "${GOMPLATE_CHECKSUM} /usr/bin/gomplate" | sha256sum -c - && \
+  chmod +x /usr/bin/gomplate
+
+RUN apt-get update -y && \
+  apt-get install -y \
+    ca-certificates \
+    bash \
+    vim \
+    curl \
+    wget \
+    procps \
+    apt-utils \
+    apt-transport-https \
+    iputils-ping \
+    bzip2 \
+    unzip \
+    cron \
+    git-core \
+    sshpass \
+    tree \
+    jq \
+    gnupg \
+    libnss-wrapper && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY ./overlay /
+CMD ["bash"]

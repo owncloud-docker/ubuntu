@@ -1,6 +1,7 @@
 def main(ctx):
     versions = [
         "latest",
+        "21.10",
         "20.04",
         "18.04",
     ]
