@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>owncloud-ops/renovate-presets:docker"]
+  "extends": ["github>owncloud-ops/renovate-presets:docker"],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["ubuntu"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    }
+  ]
 }
