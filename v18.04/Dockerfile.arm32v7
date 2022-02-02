@@ -12,11 +12,11 @@ ENV TERM xterm
 
 ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.2/wait-for-linux-arm /usr/bin/wait-for
 
-ENV SU_EXEC_CHECKSUM=8768127e22410b74edf6bab39e732ff41f260d69b2e30891ade3634e9aa11b81
-ADD https://github.com/tianon/gosu/releases/download/1.12/gosu-armhf /usr/bin/su-exec
+ENV SU_EXEC_CHECKSUM=abb1489357358b443789571d52b5410258ddaca525ee7ac3ba0dd91d34484589
+ADD https://github.com/tianon/gosu/releases/download/1.14/gosu-armhf /usr/bin/su-exec
 
-ENV GOMPLATE_CHECKSUM=8fae2244bf96d8db1f48acc50a8b1d86a1bf69f1ba27e326933840759deb2b34
-ADD https://github.com/hairyhenderson/gomplate/releases/download/v3.9.0/gomplate_linux-armv7 /usr/bin/gomplate
+ENV GOMPLATE_CHECKSUM=b97f60ba85d23b14b8b502a9eb229f9131ecdd7cd3b095b915520b6d3bff7b6e
+ADD https://github.com/hairyhenderson/gomplate/releases/download/v3.10.0/gomplate_linux-armv7 /usr/bin/gomplate
 
 RUN chmod +x /usr/bin/wait-for && \
   echo "${SU_EXEC_CHECKSUM} /usr/bin/su-exec" | sha256sum -c - && \
