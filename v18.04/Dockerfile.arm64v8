@@ -1,4 +1,4 @@
-FROM arm64v8/ubuntu:18.04@sha256:41655dcc90bca6c0063eba1f24c7c9d151c2da379c4e56b9850dc3e3a27abde9
+FROM arm64v8/ubuntu:18.04@sha256:d62e3c99dcd0880f3d4f4c68db5462f883a5ce965b5149ca0e1490a267add8b0
 
 LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
   org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>" \
