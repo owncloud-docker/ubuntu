@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-05-14
+
+* Added
+  * Add Ubuntu 22.04
+
 ## 2020-05-25
 
 * Added
