@@ -25,6 +25,7 @@ RUN chmod +x /usr/bin/wait-for && \
   chmod +x /usr/bin/gomplate
 
 RUN apt-get update -y && \
+  apt-get upgrade -y && \
   apt-get install -y \
     ca-certificates \
     bash \
