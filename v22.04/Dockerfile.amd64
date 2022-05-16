@@ -10,6 +10,8 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
+RUN apt-get update -y
+
 ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.3/wait-for-linux-amd64 /usr/bin/wait-for
 
 ENV SU_EXEC_CHECKSUM=bd8be776e97ec2b911190a82d9ab3fa6c013ae6d3121eea3d0bfd5c82a0eaf8c
