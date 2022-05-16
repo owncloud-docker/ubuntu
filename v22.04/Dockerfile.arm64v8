@@ -24,9 +24,11 @@ RUN chmod +x /usr/bin/wait-for && \
   echo "${GOMPLATE_CHECKSUM} /usr/bin/gomplate" | sha256sum -c - && \
   chmod +x /usr/bin/gomplate
 
-RUN apt-get update -y && \
-  apt-get upgrade -y && \
-  apt-get install -y \
+RUN apt-get update -y
+
+RUN apt-get upgrade -y
+
+RUN apt-get install -y \
     ca-certificates \
     bash \
     vim \
