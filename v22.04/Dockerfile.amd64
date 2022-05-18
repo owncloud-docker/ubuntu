@@ -10,9 +10,7 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
-RUN apt-get update -y
-
-ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.3/wait-for-linux-amd64 /usr/bin/wait-for
+ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.2/wait-for-linux-amd64 /usr/bin/wait-for
 
 ENV SU_EXEC_CHECKSUM=bd8be776e97ec2b911190a82d9ab3fa6c013ae6d3121eea3d0bfd5c82a0eaf8c
 ADD https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64 /usr/bin/su-exec
@@ -26,11 +24,8 @@ RUN chmod +x /usr/bin/wait-for && \
   echo "${GOMPLATE_CHECKSUM} /usr/bin/gomplate" | sha256sum -c - && \
   chmod +x /usr/bin/gomplate
 
-RUN apt-get update -y
-
-RUN apt-get upgrade -y
-
-RUN apt-get install -y \
+RUN apt-get update -y && \
+  apt-get install -y \
     ca-certificates \
     bash \
     vim \

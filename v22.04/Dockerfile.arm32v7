@@ -10,7 +10,7 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
-ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.3/wait-for-linux-arm /usr/bin/wait-for
+ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.2/wait-for-linux-arm /usr/bin/wait-for
 
 ENV SU_EXEC_CHECKSUM=abb1489357358b443789571d52b5410258ddaca525ee7ac3ba0dd91d34484589
 ADD https://github.com/tianon/gosu/releases/download/1.14/gosu-armhf /usr/bin/su-exec
@@ -25,7 +25,6 @@ RUN chmod +x /usr/bin/wait-for && \
   chmod +x /usr/bin/gomplate
 
 RUN apt-get update -y && \
-  apt-get upgrade -y && \
   apt-get install -y \
     ca-certificates \
     bash \
