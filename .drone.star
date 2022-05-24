@@ -109,7 +109,6 @@ def manifest(config):
             {
                 "name": "manifest",
                 "image": "plugins/manifest",
-                "pull": "always",
                 "settings": {
                     "username": {
                         "from_secret": "public_username",
@@ -195,7 +194,6 @@ def rocketchat(config):
             {
                 "name": "notify",
                 "image": "plugins/slack",
-                "pull": "always",
                 "failure": "ignore",
                 "settings": {
                     "webhook": {
@@ -221,9 +219,7 @@ def rocketchat(config):
 def prepublish(config):
     return [{
         "name": "prepublish",
-        "image": "plugins/docker",
-        "privileged": True,
-        "pull": "always",
+        "image": "plugins/kaniko:1",
         "settings": {
             "username": {
                 "from_secret": "internal_username",
@@ -233,10 +229,10 @@ def prepublish(config):
             },
             "tags": config["internal"],
             "dockerfile": "%s/Dockerfile.%s" % (config["path"], config["arch"]),
-            "repo": "registry.drone.owncloud.com/owncloud/%s" % config["repo"],
+            "repo": "owncloud/%s" % config["repo"],
             "registry": "registry.drone.owncloud.com",
+            "expand_repo": "true",
             "context": config["path"],
-            "purge": False,
         },
     }]
 
@@ -244,7 +240,6 @@ def sleep(config):
     return [{
         "name": "sleep",
         "image": "owncloudci/alpine:latest",
-        "pull": "always",
         "environment": {
             "DOCKER_USER": {
                 "from_secret": "internal_username",
@@ -261,9 +256,7 @@ def sleep(config):
 def publish(config):
     return [{
         "name": "publish",
-        "image": "plugins/docker",
-        "privileged": True,
-        "pull": "always",
+        "image": "plugins/kaniko:1",
         "settings": {
             "username": {
                 "from_secret": "public_username",
@@ -275,7 +268,6 @@ def publish(config):
             "dockerfile": "%s/Dockerfile.%s" % (config["path"], config["arch"]),
             "repo": "owncloud/%s" % config["repo"],
             "context": config["path"],
-            "pull_image": False,
         },
         "when": {
             "ref": [
@@ -288,7 +280,6 @@ def cleanup(config):
     return [{
         "name": "cleanup",
         "image": "owncloudci/alpine:latest",
-        "pull": "always",
         "failure": "ignore",
         "environment": {
             "DOCKER_USER": {
@@ -326,7 +317,6 @@ def checkStarlark():
             {
                 "name": "format-check-starlark",
                 "image": "owncloudci/bazel-buildifier",
-                "pull": "always",
                 "commands": [
                     "buildifier --mode=check .drone.star",
                 ],
@@ -334,7 +324,6 @@ def checkStarlark():
             {
                 "name": "show-diff",
                 "image": "owncloudci/bazel-buildifier",
-                "pull": "always",
                 "commands": [
                     "buildifier --mode=fix .drone.star",
                     "git diff",
