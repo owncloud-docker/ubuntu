@@ -17,13 +17,6 @@ ENV WAIT_FOR_VERSION="${WAIT_FOR_VERSION:-v1.0.2}"
 # renovate: datasource=github-releases depName=tianon/gosu versioning=loose
 ENV SU_EXEC_VERSION="${SU_EXEC_VERSION:-1.14}"
 
-RUN curl -SsL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-arm64" && \
-    curl -SsL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-linux-arm64" && \
-    curl -SsL -o /usr/bin/su-exec "https://github.com/tianon/gosu/releases/download/${SU_EXEC_VERSION}/gosu-arm64" && \
-    chmod 755 /usr/bin/gomplate && \
-    chmod 755 /usr/bin/wait-for && \
-    chmod 755 /usr/bin/su-exec
-
 RUN apt-get update -y && \
   apt-get install -y \
     ca-certificates \
@@ -47,6 +40,13 @@ RUN apt-get update -y && \
     libnss-wrapper && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN curl -SsL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-arm64" && \
+    curl -SsL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-linux-arm64" && \
+    curl -SsL -o /usr/bin/su-exec "https://github.com/tianon/gosu/releases/download/${SU_EXEC_VERSION}/gosu-arm64" && \
+    chmod 755 /usr/bin/gomplate && \
+    chmod 755 /usr/bin/wait-for && \
+    chmod 755 /usr/bin/su-exec
 
 COPY ./overlay /
 CMD ["bash"]
