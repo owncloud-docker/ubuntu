@@ -10,19 +10,19 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
-ADD https://github.com/owncloud-ci/wait-for/releases/download/v1.0.2/wait-for-linux-amd64 /usr/bin/wait-for
+# renovate: datasource=github-releases depName=hairyhenderson/gomplate
+ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.10.0}"
+# renovate: datasource=github-releases depName=owncloud-ci/wait-for
+ENV WAIT_FOR_VERSION="${WAIT_FOR_VERSION:-v1.0.2}"
+# renovate: datasource=github-releases depName=tianon/gosu versioning=loose
+ENV SU_EXEC_VERSION="${SU_EXEC_VERSION:-1.14}"
 
-ENV SU_EXEC_CHECKSUM=bd8be776e97ec2b911190a82d9ab3fa6c013ae6d3121eea3d0bfd5c82a0eaf8c
-ADD https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64 /usr/bin/su-exec
-
-ENV GOMPLATE_CHECKSUM=eec0f85433c9c8aad93e8cd84c79d238f436b3e62f35b15471f5929bc741763a
-ADD https://github.com/hairyhenderson/gomplate/releases/download/v3.10.0/gomplate_linux-amd64 /usr/bin/gomplate
-
-RUN chmod +x /usr/bin/wait-for && \
-  echo "${SU_EXEC_CHECKSUM} /usr/bin/su-exec" | sha256sum -c - && \
-  chmod +x /usr/bin/su-exec && \
-  echo "${GOMPLATE_CHECKSUM} /usr/bin/gomplate" | sha256sum -c - && \
-  chmod +x /usr/bin/gomplate
+RUN curl -SsL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64" && \
+    curl -SsL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-linux-amd64" && \
+    curl -SsL -o /usr/bin/su-exec "https://github.com/tianon/gosu/releases/download/${SU_EXEC_VERSION}/gosu-amd64" && \
+    chmod 755 /usr/bin/gomplate && \
+    chmod 755 /usr/bin/wait-for && \
+    chmod 755 /usr/bin/su-exec
 
 RUN apt-get update -y && \
   apt-get install -y \
