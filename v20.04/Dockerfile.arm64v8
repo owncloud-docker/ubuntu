@@ -52,4 +52,5 @@ RUN curl -SsfL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/
     chmod 755 /usr/bin/retry && \
     chmod 755 /usr/bin/su-exec
 
+ADD overlay /
 CMD ["bash"]
