@@ -1,16 +1,16 @@
 def main(ctx):
     versions = [
         {
-            value: "latest",
+            "value": "latest",
         },
         {
-            value: "22.04",
+            "value": "22.04",
         },
         {
-            value: "20.04",
+            "value": "20.04",
         },
         {
-            value: "18.04",
+            "value": "18.04",
         },
     ]
 
