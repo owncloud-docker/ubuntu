@@ -14,6 +14,8 @@ ENV TERM xterm
 ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.11.3}"
 # renovate: datasource=github-releases depName=owncloud-ci/wait-for
 ENV WAIT_FOR_VERSION="${WAIT_FOR_VERSION:-v1.1.0}"
+# renovate: datasource=github-releases depName=owncloud-ci/retry
+ENV RETRY_VERSION="${RETRY_VERSION:-v1.1.0}"
 # renovate: datasource=github-releases depName=tianon/gosu versioning=loose
 ENV SU_EXEC_VERSION="${SU_EXEC_VERSION:-1.14}"
 
@@ -43,10 +45,10 @@ RUN apt-get update -y && \
 
 RUN curl -SsfL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64" && \
     curl -SsfL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-linux-amd64" && \
+    curl -SsfL -o /usr/bin/retry "https://github.com/owncloud-ci/retry/releases/download/${RETRY_VERSION}/retry" && \
     curl -SsfL -o /usr/bin/su-exec "https://github.com/tianon/gosu/releases/download/${SU_EXEC_VERSION}/gosu-amd64" && \
     chmod 755 /usr/bin/gomplate && \
     chmod 755 /usr/bin/wait-for && \
     chmod 755 /usr/bin/su-exec
 
-COPY ./overlay /
 CMD ["bash"]
