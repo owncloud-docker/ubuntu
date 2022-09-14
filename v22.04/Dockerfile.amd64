@@ -49,6 +49,7 @@ RUN curl -SsfL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/
     curl -SsfL -o /usr/bin/su-exec "https://github.com/tianon/gosu/releases/download/${SU_EXEC_VERSION}/gosu-amd64" && \
     chmod 755 /usr/bin/gomplate && \
     chmod 755 /usr/bin/wait-for && \
+    chmod 755 /usr/bin/retry && \
     chmod 755 /usr/bin/su-exec
 
 CMD ["bash"]
