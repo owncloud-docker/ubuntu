@@ -39,11 +39,9 @@ RUN apt-get update -y && \
 RUN curl -SsfL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-arm64" && \
     curl -SsfL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-linux-arm64" && \
     curl -SsfL -o /usr/bin/retry "https://github.com/owncloud-ci/retry/releases/download/${RETRY_VERSION}/retry" && \
-    curl -SsfL -o /usr/bin/su-exec "https://github.com/tianon/gosu/releases/download/${SU_EXEC_VERSION}/gosu-arm64" && \
     chmod 755 /usr/bin/gomplate && \
     chmod 755 /usr/bin/wait-for && \
-    chmod 755 /usr/bin/retry && \
-    chmod 755 /usr/bin/su-exec
+    chmod 755 /usr/bin/retry
 
 ADD overlay /
 CMD ["bash"]
