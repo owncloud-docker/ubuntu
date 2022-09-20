@@ -23,20 +23,13 @@ RUN apt-get update -y && \
   apt-get install -y \
     ca-certificates \
     bash \
-    vim \
     curl \
     wget \
-    rsync \
     procps \
     apt-utils \
     apt-transport-https \
-    iputils-ping \
     bzip2 \
-    unzip \
     cron \
-    git-core \
-    sshpass \
-    tree \
     jq \
     gnupg \
     libnss-wrapper && \
