@@ -16,8 +16,6 @@ ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.11.3}"
 ENV WAIT_FOR_VERSION="${WAIT_FOR_VERSION:-v1.1.0}"
 # renovate: datasource=github-releases depName=owncloud-ci/retry
 ENV RETRY_VERSION="${RETRY_VERSION:-v2.0.0}"
-# renovate: datasource=github-releases depName=tianon/gosu versioning=loose
-ENV SU_EXEC_VERSION="${SU_EXEC_VERSION:-1.14}"
 
 RUN apt-get update -y && \
   apt-get install -y \
