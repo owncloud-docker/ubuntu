@@ -257,7 +257,7 @@ def sleep(config):
         },
         "commands": [
             "regctl registry login registry.drone.owncloud.com --user $DOCKER_USER --pass $DOCKER_PASSWORD",
-            "retry -- 'regctl image digest --require-list registry.drone.owncloud.com/owncloud/%s:%s'" % (config["repo"], config["internal"]),
+            "retry -- 'regctl image digest registry.drone.owncloud.com/owncloud/%s:%s'" % (config["repo"], config["internal"]),
         ],
     }]
 
