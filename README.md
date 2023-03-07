@@ -14,7 +14,7 @@ ownCloud Docker Ubuntu base image based on the [official Ubuntu](https://registr
   [owncloud-docker/ubuntu](https://github.com/owncloud-docker/ubuntu/issues)
 
 - **Supported architectures:**\
-  `amd64`, `arm32v7`, `arm64v8`
+  `amd64`, `arm64v8`
 
 ## Docker Tags and respective Dockerfile links
 
