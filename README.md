@@ -1,6 +1,6 @@
 # ownCloud: Ubuntu
 
-[![Build Status](https://img.shields.io/drone/build/owncloud-docker/ubuntu?logo=drone&server=https%3A%2F%2Fdrone.owncloud.com)](https://drone.owncloud.com/owncloud-docker/ubuntu)
+[![Build Status](https://drone.owncloud.com/api/badges/owncloud-docker/ubuntu/status.svg)](https://drone.owncloud.com/owncloud-docker/ubuntu)
 [![Docker Hub](https://img.shields.io/docker/v/owncloud/ubuntu?logo=docker&label=dockerhub&sort=semver&logoColor=white)](https://hub.docker.com/r/owncloud/ubuntu)
 [![GitHub contributors](https://img.shields.io/github/contributors/owncloud-docker/ubuntu)](https://github.com/owncloud-docker/ubuntu/graphs/contributors)
 [![Source: GitHub](https://img.shields.io/badge/source-github-blue.svg?logo=github&logoColor=white)](https://github.com/owncloud-docker/ubuntu)
