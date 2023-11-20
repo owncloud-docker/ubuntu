@@ -194,6 +194,41 @@ def sleep(config):
         ],
     }]
 
+# container vulnerability scanning, see: https://github.com/aquasecurity/trivy
+def trivy(config):
+    return [
+        {
+            "name": "trivy-presets",
+            "image": "docker.io/owncloudci/alpine",
+            "commands": [
+                'retry -t 3 -s 5 -- "curl -sSfL https://github.com/owncloud-docker/trivy-presets/archive/refs/heads/main.tar.gz | tar xz --strip-components=2 trivy-presets-main/base/"',
+            ],
+        },
+        {
+            "name": "trivy-scan",
+            "image": "ghcr.io/aquasecurity/trivy",
+            "environment": {
+                "TRIVY_AUTH_URL": "https://registry.drone.owncloud.com",
+                "TRIVY_USERNAME": {
+                    "from_secret": "internal_username",
+                },
+                "TRIVY_PASSWORD": {
+                    "from_secret": "internal_password",
+                },
+                "TRIVY_NO_PROGRESS": True,
+                "TRIVY_IGNORE_UNFIXED": True,
+                "TRIVY_TIMEOUT": "5m",
+                "TRIVY_EXIT_CODE": "1",
+                "TRIVY_SEVERITY": "HIGH,CRITICAL",
+                "TRIVY_SKIP_FILES": "/usr/local/bin/gomplate",
+            },
+            "commands": [
+                "trivy -v",
+                "trivy image registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
+            ],
+        },
+    ]
+
 def publish(config):
     return [{
         "name": "publish",
@@ -294,4 +329,4 @@ def shellcheck(config):
     ]
 
 def steps(config):
-    return prepublish(config) + sleep(config) + publish(config) + cleanup(config)
+    return prepublish(config) + sleep(config) + trivy(config) + publish(config) + cleanup(config)
