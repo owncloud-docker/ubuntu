@@ -1,4 +1,4 @@
-FROM arm64v8/ubuntu:22.04@sha256:02410fbfad7f2842cce3cf7655828424f4f7f6b5105b0016e24f1676f3bd15f5
+FROM ubuntu:22.04
 
 LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
   org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>" \
@@ -6,6 +6,10 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
   org.opencontainers.image.url="https://hub.docker.com/r/owncloud/ubuntu" \
   org.opencontainers.image.source="https://github.com/owncloud-docker/ubuntu" \
   org.opencontainers.image.documentation="https://github.com/owncloud-docker/ubuntu"
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
@@ -34,8 +38,8 @@ RUN apt-get update -y && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN curl -SsfL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-arm64" && \
-    curl -SsfL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-linux-arm64" && \
+RUN curl -SsfL -o /usr/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_${TARGETOS}-${TARGETARCH}${TARGETVARIANT}" && \
+    curl -SsfL -o /usr/bin/wait-for "https://github.com/owncloud-ci/wait-for/releases/download/${WAIT_FOR_VERSION}/wait-for-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}" && \
     curl -SsfL -o /usr/bin/retry "https://github.com/owncloud-ci/retry/releases/download/${RETRY_VERSION}/retry" && \
     chmod 755 /usr/bin/gomplate && \
     chmod 755 /usr/bin/wait-for && \
