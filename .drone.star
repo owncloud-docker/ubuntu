@@ -1,5 +1,5 @@
 DOCKER_PUSHRM_IMAGE = "docker.io/chko/docker-pushrm:1"
-DOCKER_BUILDX_IMAGE = "docker.io/owncloudci/drone-docker-buildx:1"
+DRONE_DOCKER_BUILDX_IMAGE = "docker.io/owncloudci/drone-docker-buildx:1"
 
 def main(ctx):
     versions = [
@@ -161,7 +161,7 @@ def rocketchat(config):
 def prepublish(config):
     return [{
         "name": "prepublish",
-        "image": DOCKER_BUILDX_IMAGE,
+        "image": DRONE_DOCKER_BUILDX_IMAGE,
         "settings": {
             "username": {
                 "from_secret": "internal_username",
@@ -237,7 +237,7 @@ def trivy(config):
 def publish(config):
     return [{
         "name": "publish",
-        "image": DOCKER_BUILDX_IMAGE,
+        "image": DRONE_DOCKER_BUILDX_IMAGE,
         "settings": {
             "username": {
                 "from_secret": "public_username",
