@@ -2,10 +2,11 @@ def main(ctx):
     versions = [
         {
             "value": "22.04",
+            "tags": ["jammy"],
         },
         {
             "value": "20.04",
-            "tags": ["latest"],
+            "tags": ["latest", "focal"],
         },
     ]
 
