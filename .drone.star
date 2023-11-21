@@ -1,27 +1,16 @@
 def main(ctx):
     versions = [
         {
-            "value": "latest",
-        },
-        {
             "value": "22.04",
         },
         {
             "value": "20.04",
+            "tags": ["latest"],
         },
-        {
-            "value": "18.04",
-        },
-    ]
-
-    arches = [
-        "amd64",
-        "arm64v8",
     ]
 
     config = {
         "version": None,
-        "arch": None,
         "description": "ownCloud Ubuntu base image",
         "repo": ctx.repo.name,
     }
@@ -31,39 +20,19 @@ def main(ctx):
 
     for version in versions:
         config["version"] = version
+        config["version"]["path"] = "v%s" % config["version"]["value"]
 
-        if config["version"]["value"] == "latest":
-            config["path"] = "latest"
-        else:
-            config["path"] = "v%s" % config["version"]["value"]
-
-        m = manifest(config)
         shell.extend(shellcheck(config))
         inner = []
 
-        for arch in arches:
-            config["arch"] = arch
+        config["internal"] = "%s-%s-%s" % (ctx.build.commit, "${DRONE_BUILD_NUMBER}", config["version"]["path"])
+        config["version"]["tags"] = version.get("tags", [])
+        config["version"]["tags"].append(config["version"]["value"])
 
-            if config["version"]["value"] == "latest":
-                config["tag"] = arch
-            else:
-                config["tag"] = "%s-%s" % (config["version"]["value"], arch)
+        d = docker(config)
+        d["depends_on"].append(lint(shellcheck(config))["name"])
+        inner.append(d)
 
-            if config["arch"] == "amd64":
-                config["platform"] = "amd64"
-
-            if config["arch"] == "arm64v8":
-                config["platform"] = "arm64"
-
-            config["internal"] = "%s-%s-%s" % (ctx.build.commit, "${DRONE_BUILD_NUMBER}", config["tag"])
-
-            d = docker(config)
-            d["depends_on"].append(lint(shellcheck(config))["name"])
-            m["depends_on"].append(d["name"])
-
-            inner.append(d)
-
-        inner.append(m)
         stages.extend(inner)
 
     after = [
@@ -81,10 +50,10 @@ def docker(config):
     return {
         "kind": "pipeline",
         "type": "docker",
-        "name": "%s-%s" % (config["arch"], config["path"]),
+        "name": "%s" % (config["version"]["path"]),
         "platform": {
             "os": "linux",
-            "arch": config["platform"],
+            "arch": "amd64",
         },
         "steps": steps(config),
         "volumes": volumes(config),
@@ -93,40 +62,6 @@ def docker(config):
             "ref": [
                 "refs/heads/master",
                 "refs/pull/**",
-            ],
-        },
-    }
-
-def manifest(config):
-    return {
-        "kind": "pipeline",
-        "type": "docker",
-        "name": "manifest-%s" % config["path"],
-        "platform": {
-            "os": "linux",
-            "arch": "amd64",
-        },
-        "steps": [
-            {
-                "name": "manifest",
-                "image": "docker.io/plugins/manifest",
-                "settings": {
-                    "username": {
-                        "from_secret": "public_username",
-                    },
-                    "password": {
-                        "from_secret": "public_password",
-                    },
-                    "spec": "%s/manifest.tmpl" % config["path"],
-                    "ignore_missing": "true",
-                },
-            },
-        ],
-        "depends_on": [],
-        "trigger": {
-            "ref": [
-                "refs/heads/master",
-                "refs/tags/**",
             ],
         },
     }
@@ -143,7 +78,7 @@ def documentation(config):
         "steps": [
             {
                 "name": "link-check",
-                "image": "ghcr.io/tcort/markdown-link-check:3.11.0",
+                "image": "ghcr.io/tcort/markdown-link-check:stable",
                 "commands": [
                     "/src/markdown-link-check README.md",
                 ],
@@ -222,7 +157,7 @@ def rocketchat(config):
 def prepublish(config):
     return [{
         "name": "prepublish",
-        "image": "docker.io/plugins/docker",
+        "image": "docker.io/owncloudci/drone-docker-buildx:1",
         "settings": {
             "username": {
                 "from_secret": "internal_username",
@@ -231,11 +166,14 @@ def prepublish(config):
                 "from_secret": "internal_password",
             },
             "tags": config["internal"],
-            "dockerfile": "%s/Dockerfile.%s" % (config["path"], config["arch"]),
+            "dockerfile": "%s/Dockerfile.multiarch" % (config["version"]["path"]),
             "repo": "registry.drone.owncloud.com/owncloud/%s" % config["repo"],
             "registry": "registry.drone.owncloud.com",
-            "context": config["path"],
+            "context": config["version"]["path"],
             "purge": False,
+        },
+        "environment": {
+            "BUILDKIT_NO_CLIENT_TOKEN": True,
         },
     }]
 
@@ -257,10 +195,45 @@ def sleep(config):
         ],
     }]
 
+# container vulnerability scanning, see: https://github.com/aquasecurity/trivy
+def trivy(config):
+    return [
+        {
+            "name": "trivy-presets",
+            "image": "docker.io/owncloudci/alpine",
+            "commands": [
+                'retry -t 3 -s 5 -- "curl -sSfL https://github.com/owncloud-docker/trivy-presets/archive/refs/heads/main.tar.gz | tar xz --strip-components=2 trivy-presets-main/base/"',
+            ],
+        },
+        {
+            "name": "trivy-scan",
+            "image": "ghcr.io/aquasecurity/trivy",
+            "environment": {
+                "TRIVY_AUTH_URL": "https://registry.drone.owncloud.com",
+                "TRIVY_USERNAME": {
+                    "from_secret": "internal_username",
+                },
+                "TRIVY_PASSWORD": {
+                    "from_secret": "internal_password",
+                },
+                "TRIVY_NO_PROGRESS": True,
+                "TRIVY_IGNORE_UNFIXED": True,
+                "TRIVY_TIMEOUT": "5m",
+                "TRIVY_EXIT_CODE": "1",
+                "TRIVY_SEVERITY": "HIGH,CRITICAL",
+                "TRIVY_SKIP_FILES": "/usr/local/bin/gomplate",
+            },
+            "commands": [
+                "trivy -v",
+                "trivy image registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
+            ],
+        },
+    ]
+
 def publish(config):
     return [{
         "name": "publish",
-        "image": "docker.io/plugins/docker",
+        "image": "docker.io/owncloudci/drone-docker-buildx:1",
         "settings": {
             "username": {
                 "from_secret": "public_username",
@@ -268,10 +241,14 @@ def publish(config):
             "password": {
                 "from_secret": "public_password",
             },
-            "tags": config["tag"],
-            "dockerfile": "%s/Dockerfile.%s" % (config["path"], config["arch"]),
+            "platforms": [
+                "linux/amd64",
+                "linux/arm64",
+            ],
+            "tags": config["version"]["tags"],
+            "dockerfile": "%s/Dockerfile.multiarch" % (config["version"]["path"]),
             "repo": "owncloud/%s" % config["repo"],
-            "context": config["path"],
+            "context": config["version"]["path"],
             "pull_image": False,
         },
         "when": {
@@ -324,21 +301,8 @@ def lint(shell):
                 "name": "starlark-format",
                 "image": "docker.io/owncloudci/bazel-buildifier",
                 "commands": [
-                    "buildifier --mode=check .drone.star",
+                    "buildifier -d -diff_command='diff -u' .drone.star",
                 ],
-            },
-            {
-                "name": "starlark-diff",
-                "image": "docker.io/owncloudci/bazel-buildifier",
-                "commands": [
-                    "buildifier --mode=fix .drone.star",
-                    "git diff",
-                ],
-                "when": {
-                    "status": [
-                        "failure",
-                    ],
-                },
             },
         ],
         "depends_on": [],
@@ -357,13 +321,13 @@ def lint(shell):
 def shellcheck(config):
     return [
         {
-            "name": "shellcheck-%s" % (config["path"]),
+            "name": "shellcheck-%s" % (config["version"]["path"]),
             "image": "docker.io/koalaman/shellcheck-alpine:stable",
             "commands": [
-                "grep -ErlI '^#!(.*/|.*env +)(sh|bash|ksh)' %s/overlay/ | xargs -r shellcheck" % (config["path"]),
+                "grep -ErlI '^#!(.*/|.*env +)(sh|bash|ksh)' %s/overlay/ | xargs -r shellcheck" % (config["version"]["path"]),
             ],
         },
     ]
 
 def steps(config):
-    return prepublish(config) + sleep(config) + publish(config) + cleanup(config)
+    return prepublish(config) + sleep(config) + trivy(config) + publish(config) + cleanup(config)
