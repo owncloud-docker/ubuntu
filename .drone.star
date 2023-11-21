@@ -1,5 +1,5 @@
 DOCKER_PUSHRM_IMAGE = "docker.io/chko/docker-pushrm:1"
-DRONE_DOCKER_BUILDX_IMAGE = "docker.io/owncloudci/drone-docker-buildx:1"
+DRONE_DOCKER_BUILDX_IMAGE = "docker.io/owncloudci/drone-docker-buildx:2"
 
 def main(ctx):
     versions = [
