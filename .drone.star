@@ -162,140 +162,152 @@ def rocketchat(config):
     }
 
 def prepublish(config):
-    return [{
-        "name": "prepublish",
-        "image": DRONE_DOCKER_BUILDX_IMAGE,
-        "settings": {
-            "username": {
-                "from_secret": "internal_username",
+    return [
+        {
+            "name": "prepublish",
+            "image": DRONE_DOCKER_BUILDX_IMAGE,
+            "settings": {
+                "username": {
+                    "from_secret": "internal_username",
+                },
+                "password": {
+                    "from_secret": "internal_password",
+                },
+                "tags": config["internal"],
+                "dockerfile": "%s/Dockerfile.multiarch" % (config["version"]["path"]),
+                "repo": "registry.drone.owncloud.com/owncloud/%s" % config["repo"],
+                "registry": "registry.drone.owncloud.com",
+                "context": config["version"]["path"],
+                "purge": False,
             },
-            "password": {
-                "from_secret": "internal_password",
+            "environment": {
+                "BUILDKIT_NO_CLIENT_TOKEN": True,
             },
-            "tags": config["internal"],
-            "dockerfile": "%s/Dockerfile.multiarch" % (config["version"]["path"]),
-            "repo": "registry.drone.owncloud.com/owncloud/%s" % config["repo"],
-            "registry": "registry.drone.owncloud.com",
-            "context": config["version"]["path"],
-            "purge": False,
         },
-        "environment": {
-            "BUILDKIT_NO_CLIENT_TOKEN": True,
-        },
-    }]
+    ]
 
 def sleep(config):
-    return [{
-        "name": "sleep",
-        "image": "docker.io/owncloudci/alpine",
-        "environment": {
-            "DOCKER_USER": {
-                "from_secret": "internal_username",
+    return [
+        {
+            "name": "sleep",
+            "image": "docker.io/owncloudci/alpine",
+            "environment": {
+                "DOCKER_USER": {
+                    "from_secret": "internal_username",
+                },
+                "DOCKER_PASSWORD": {
+                    "from_secret": "internal_password",
+                },
             },
-            "DOCKER_PASSWORD": {
-                "from_secret": "internal_password",
-            },
+            "commands": [
+                "regctl registry login registry.drone.owncloud.com --user $DOCKER_USER --pass $DOCKER_PASSWORD",
+                "retry -- 'regctl image digest registry.drone.owncloud.com/owncloud/%s:%s'" % (config["repo"], config["internal"]),
+            ],
         },
-        "commands": [
-            "regctl registry login registry.drone.owncloud.com --user $DOCKER_USER --pass $DOCKER_PASSWORD",
-            "retry -- 'regctl image digest registry.drone.owncloud.com/owncloud/%s:%s'" % (config["repo"], config["internal"]),
-        ],
-    }]
+    ]
 
 # container vulnerability scanning, see: https://github.com/aquasecurity/trivy
 def trivy(config):
-    return [{
-        "name": "trivy-presets",
-        "image": "docker.io/owncloudci/alpine",
-        "commands": [
-            'retry -t 3 -s 5 -- "curl -sSfL https://github.com/owncloud-docker/trivy-presets/archive/refs/heads/main.tar.gz | tar xz --strip-components=2 trivy-presets-main/base/"',
-        ],
-    },
-    {
-        "name": "trivy-scan",
-        "image": "ghcr.io/aquasecurity/trivy",
-        "environment": {
-            "TRIVY_AUTH_URL": "https://registry.drone.owncloud.com",
-            "TRIVY_USERNAME": {
-                "from_secret": "internal_username",
-            },
-            "TRIVY_PASSWORD": {
-                "from_secret": "internal_password",
-            },
-            "TRIVY_NO_PROGRESS": True,
-            "TRIVY_IGNORE_UNFIXED": True,
-            "TRIVY_TIMEOUT": "5m",
-            "TRIVY_EXIT_CODE": "1",
-            "TRIVY_SEVERITY": "HIGH,CRITICAL",
-            "TRIVY_SKIP_FILES": "/usr/local/bin/gomplate",
+    return [
+        {
+            "name": "trivy-presets",
+            "image": "docker.io/owncloudci/alpine",
+            "commands": [
+                'retry -t 3 -s 5 -- "curl -sSfL https://github.com/owncloud-docker/trivy-presets/archive/refs/heads/main.tar.gz | tar xz --strip-components=2 trivy-presets-main/base/"',
+            ],
         },
-        "commands": [
-            "trivy -v",
-            "trivy image registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
-        ],
-    }]
+        {
+            "name": "trivy-scan",
+            "image": "ghcr.io/aquasecurity/trivy",
+            "environment": {
+                "TRIVY_AUTH_URL": "https://registry.drone.owncloud.com",
+                "TRIVY_USERNAME": {
+                    "from_secret": "internal_username",
+                },
+                "TRIVY_PASSWORD": {
+                    "from_secret": "internal_password",
+                },
+                "TRIVY_NO_PROGRESS": True,
+                "TRIVY_IGNORE_UNFIXED": True,
+                "TRIVY_TIMEOUT": "5m",
+                "TRIVY_EXIT_CODE": "1",
+                "TRIVY_SEVERITY": "HIGH,CRITICAL",
+                "TRIVY_SKIP_FILES": "/usr/local/bin/gomplate",
+            },
+            "commands": [
+                "trivy -v",
+                "trivy image registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
+            ],
+        },
+    ]
 
 def publish(config):
-    return [{
-        "name": "publish",
-        "image": DRONE_DOCKER_BUILDX_IMAGE,
-        "settings": {
-            "username": {
-                "from_secret": "public_username",
+    return [
+        {
+            "name": "publish",
+            "image": DRONE_DOCKER_BUILDX_IMAGE,
+            "settings": {
+                "username": {
+                    "from_secret": "public_username",
+                },
+                "password": {
+                    "from_secret": "public_password",
+                },
+                "platforms": [
+                    "linux/amd64",
+                    "linux/arm64",
+                ],
+                "tags": config["version"]["tags"],
+                "dockerfile": "%s/Dockerfile.multiarch" % (config["version"]["path"]),
+                "repo": "owncloud/%s" % config["repo"],
+                "context": config["version"]["path"],
+                "pull_image": False,
             },
-            "password": {
-                "from_secret": "public_password",
+            "when": {
+                "ref": [
+                    "refs/heads/master",
+                ],
             },
-            "platforms": [
-                "linux/amd64",
-                "linux/arm64",
-            ],
-            "tags": config["version"]["tags"],
-            "dockerfile": "%s/Dockerfile.multiarch" % (config["version"]["path"]),
-            "repo": "owncloud/%s" % config["repo"],
-            "context": config["version"]["path"],
-            "pull_image": False,
         },
-        "when": {
-            "ref": [
-                "refs/heads/master",
-            ],
-        },
-    }]
+    ]
 
 def cleanup(config):
-    return [{
-        "name": "cleanup",
-        "image": "docker.io/owncloudci/alpine",
-        "failure": "ignore",
-        "environment": {
-            "DOCKER_USER": {
-                "from_secret": "internal_username",
+    return [
+        {
+            "name": "cleanup",
+            "image": "docker.io/owncloudci/alpine",
+            "failure": "ignore",
+            "environment": {
+                "DOCKER_USER": {
+                    "from_secret": "internal_username",
+                },
+                "DOCKER_PASSWORD": {
+                    "from_secret": "internal_password",
+                },
             },
-            "DOCKER_PASSWORD": {
-                "from_secret": "internal_password",
-            },
-        },
-        "commands": [
-            "regctl registry login registry.drone.owncloud.com --user $DOCKER_USER --pass $DOCKER_PASSWORD",
-            "regctl tag rm registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
-        ],
-        "when": {
-            "status": [
-                "success",
-                "failure",
+            "commands": [
+                "regctl registry login registry.drone.owncloud.com --user $DOCKER_USER --pass $DOCKER_PASSWORD",
+                "regctl tag rm registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
             ],
+            "when": {
+                "status": [
+                    "success",
+                    "failure",
+                ],
+            },
         },
-    }]
+    ]
 
 def volumes(config):
-    return [{
-        "name": "docker",
-        "temp": {},
-    }]
+    return [
+        {
+            "name": "docker",
+            "temp": {},
+        },
+    ]
 
 def lint(config):
-    return [{
+    return {
         "kind": "pipeline",
         "type": "docker",
         "name": "lint",
@@ -319,16 +331,18 @@ def lint(config):
                 "refs/pull/**",
             ],
         },
-    }]
+    }
 
 def shellcheck(config):
-    return [{
-        "name": "shellcheck-%s" % (config["version"]["path"]),
-        "image": "docker.io/koalaman/shellcheck-alpine:stable",
-        "commands": [
-            "grep -ErlI '^#!(.*/|.*env +)(sh|bash|ksh)' %s/overlay/ | xargs -r shellcheck" % (config["version"]["path"]),
-        ],
-    }]
+    return [
+        {
+            "name": "shellcheck-%s" % (config["version"]["path"]),
+            "image": "docker.io/koalaman/shellcheck-alpine:stable",
+            "commands": [
+                "grep -ErlI '^#!(.*/|.*env +)(sh|bash|ksh)' %s/overlay/ | xargs -r shellcheck" % (config["version"]["path"]),
+            ],
+        },
+    ]
 
 def steps(config):
     return prepublish(config) + sleep(config) + trivy(config) + publish(config) + cleanup(config)
