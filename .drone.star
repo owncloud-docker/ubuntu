@@ -21,6 +21,7 @@ def main(ctx):
 
     stages = []
     shell = []
+    linter = lint(config)
 
     for version in versions:
         config["version"] = version
@@ -34,10 +35,12 @@ def main(ctx):
         config["version"]["tags"].append(config["version"]["value"])
 
         d = docker(config)
-        d["depends_on"].append(lint(shellcheck(config))["name"])
+        d["depends_on"].append(linter["name"])
         inner.append(d)
 
         stages.extend(inner)
+
+    linter["steps"].extend(shell)
 
     after = [
         documentation(config),
@@ -48,7 +51,7 @@ def main(ctx):
         for a in after:
             a["depends_on"].append(s["name"])
 
-    return [lint(shell)] + stages + after
+    return [linter] + stages + after
 
 def docker(config):
     return {
@@ -201,38 +204,36 @@ def sleep(config):
 
 # container vulnerability scanning, see: https://github.com/aquasecurity/trivy
 def trivy(config):
-    return [
-        {
-            "name": "trivy-presets",
-            "image": "docker.io/owncloudci/alpine",
-            "commands": [
-                'retry -t 3 -s 5 -- "curl -sSfL https://github.com/owncloud-docker/trivy-presets/archive/refs/heads/main.tar.gz | tar xz --strip-components=2 trivy-presets-main/base/"',
-            ],
-        },
-        {
-            "name": "trivy-scan",
-            "image": "ghcr.io/aquasecurity/trivy",
-            "environment": {
-                "TRIVY_AUTH_URL": "https://registry.drone.owncloud.com",
-                "TRIVY_USERNAME": {
-                    "from_secret": "internal_username",
-                },
-                "TRIVY_PASSWORD": {
-                    "from_secret": "internal_password",
-                },
-                "TRIVY_NO_PROGRESS": True,
-                "TRIVY_IGNORE_UNFIXED": True,
-                "TRIVY_TIMEOUT": "5m",
-                "TRIVY_EXIT_CODE": "1",
-                "TRIVY_SEVERITY": "HIGH,CRITICAL",
-                "TRIVY_SKIP_FILES": "/usr/local/bin/gomplate",
+    return [{
+        "name": "trivy-presets",
+        "image": "docker.io/owncloudci/alpine",
+        "commands": [
+            'retry -t 3 -s 5 -- "curl -sSfL https://github.com/owncloud-docker/trivy-presets/archive/refs/heads/main.tar.gz | tar xz --strip-components=2 trivy-presets-main/base/"',
+        ],
+    },
+    {
+        "name": "trivy-scan",
+        "image": "ghcr.io/aquasecurity/trivy",
+        "environment": {
+            "TRIVY_AUTH_URL": "https://registry.drone.owncloud.com",
+            "TRIVY_USERNAME": {
+                "from_secret": "internal_username",
             },
-            "commands": [
-                "trivy -v",
-                "trivy image registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
-            ],
+            "TRIVY_PASSWORD": {
+                "from_secret": "internal_password",
+            },
+            "TRIVY_NO_PROGRESS": True,
+            "TRIVY_IGNORE_UNFIXED": True,
+            "TRIVY_TIMEOUT": "5m",
+            "TRIVY_EXIT_CODE": "1",
+            "TRIVY_SEVERITY": "HIGH,CRITICAL",
+            "TRIVY_SKIP_FILES": "/usr/local/bin/gomplate",
         },
-    ]
+        "commands": [
+            "trivy -v",
+            "trivy image registry.drone.owncloud.com/owncloud/%s:%s" % (config["repo"], config["internal"]),
+        ],
+    }]
 
 def publish(config):
     return [{
@@ -288,15 +289,13 @@ def cleanup(config):
     }]
 
 def volumes(config):
-    return [
-        {
-            "name": "docker",
-            "temp": {},
-        },
-    ]
+    return [{
+        "name": "docker",
+        "temp": {},
+    }]
 
-def lint(shell):
-    lint = {
+def lint(config):
+    return [{
         "kind": "pipeline",
         "type": "docker",
         "name": "lint",
@@ -308,6 +307,10 @@ def lint(shell):
                     "buildifier -d -diff_command='diff -u' .drone.star",
                 ],
             },
+            {
+                "name": "editorconfig-format",
+                "image": "docker.io/mstruebing/editorconfig-checker",
+            },
         ],
         "depends_on": [],
         "trigger": {
@@ -316,22 +319,16 @@ def lint(shell):
                 "refs/pull/**",
             ],
         },
-    }
-
-    lint["steps"].extend(shell)
-
-    return lint
+    }]
 
 def shellcheck(config):
-    return [
-        {
-            "name": "shellcheck-%s" % (config["version"]["path"]),
-            "image": "docker.io/koalaman/shellcheck-alpine:stable",
-            "commands": [
-                "grep -ErlI '^#!(.*/|.*env +)(sh|bash|ksh)' %s/overlay/ | xargs -r shellcheck" % (config["version"]["path"]),
-            ],
-        },
-    ]
+    return [{
+        "name": "shellcheck-%s" % (config["version"]["path"]),
+        "image": "docker.io/koalaman/shellcheck-alpine:stable",
+        "commands": [
+            "grep -ErlI '^#!(.*/|.*env +)(sh|bash|ksh)' %s/overlay/ | xargs -r shellcheck" % (config["version"]["path"]),
+        ],
+    }]
 
 def steps(config):
     return prepublish(config) + sleep(config) + trivy(config) + publish(config) + cleanup(config)
