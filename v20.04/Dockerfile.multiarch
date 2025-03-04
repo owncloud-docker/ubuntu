@@ -15,7 +15,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 
 # renovate: datasource=github-releases depName=hairyhenderson/gomplate
-ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v4.1.0}"
+ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v4.3.0}"
 # renovate: datasource=github-releases depName=owncloud-ci/wait-for
 ENV WAIT_FOR_VERSION="${WAIT_FOR_VERSION:-v2.0.4}"
 # renovate: datasource=github-releases depName=owncloud-ci/retry
