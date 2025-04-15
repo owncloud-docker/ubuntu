@@ -18,6 +18,7 @@ ownCloud Docker Ubuntu base image based on the [official Ubuntu](https://registr
 
 ## Docker Tags and respective Dockerfile links
 
+- [`24.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v24.04/Dockerfile.multiarch) available as `owncloud/ubuntu:24.04`
 - [`22.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v22.04/Dockerfile.multiarch) available as `owncloud/ubuntu:22.04`
 - [`20.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v20.04/Dockerfile.multiarch) available as `owncloud/ubuntu:20.04`,`owncloud/ubuntu:latest`
 
