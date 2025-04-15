@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-04-15
+
+* Added
+  * Add Ubuntu 24.04
+
 ## 2022-06-07
 
 * Added
