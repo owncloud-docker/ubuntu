@@ -22,7 +22,7 @@ ENV WAIT_FOR_VERSION="${WAIT_FOR_VERSION:-v2.0.7}"
 ENV RETRY_VERSION="${RETRY_VERSION:-v2.0.0}"
 
 RUN apt-get update -y && \
-  apt-get install -y \
+  apt-get install --no-install-recommends -y \
     ca-certificates \
     bash \
     curl \

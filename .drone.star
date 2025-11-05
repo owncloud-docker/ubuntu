@@ -236,7 +236,7 @@ def trivy(config):
                 "TRIVY_TIMEOUT": "5m",
                 "TRIVY_EXIT_CODE": "1",
                 "TRIVY_SEVERITY": "HIGH,CRITICAL",
-                "TRIVY_SKIP_FILES": "/usr/bin/gomplate,/usr/bin/wait-for",
+                "TRIVY_SKIP_FILES": "/usr/bin/gomplate",
             },
             "commands": [
                 "trivy -v",
