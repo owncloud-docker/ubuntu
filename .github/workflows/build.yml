@@ -46,7 +46,7 @@ jobs:
 
       - name: Build and push
         id: docker-build
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294
+        uses: docker/build-push-action@b66d8774c665b789105b440514f0c97e6f19b06f
         with:
           context: v${{ matrix.version.value }}
           file: v${{ matrix.version.value }}/Dockerfile.multiarch
@@ -73,7 +73,7 @@ jobs:
 
       - name: Publish image
         if: github.ref == 'refs/heads/master'
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294
+        uses: docker/build-push-action@b66d8774c665b789105b440514f0c97e6f19b06f
         with:
           context: v${{ matrix.version.value }}
           file: v${{ matrix.version.value }}/Dockerfile.multiarch
