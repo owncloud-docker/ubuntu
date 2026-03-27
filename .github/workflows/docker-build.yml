@@ -1,0 +1,79 @@
+on:
+  workflow_call:
+    inputs:
+      docker-repo-name:
+        required: true
+        type: string
+      docker-tag:
+        required: true
+        type: string
+      docker-context:
+        required: true
+        type: string
+      docker-file:
+        required: true
+        type: string
+      docker-hub-username:
+        required: true
+        type: string
+      push:
+        required: true
+        type: boolean
+    secrets:
+      docker-hub-password:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      registry:
+        image: registry:3
+        ports:
+          - 5000:5000
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd
+        with:
+          driver-opts: network=host
+
+      - name: Build and push
+        id: docker-build
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294
+        with:
+          context: ${{ inputs.docker-context }}
+          file: ${{ inputs.docker-file }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: 127.0.0.1:5000/image:temp
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          image-ref: 127.0.0.1:5000/image:temp
+          hide-progress: true
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          skip-files: /usr/bin/gomplate,/usr/bin/wait-for
+
+      # Push the image on merge to master
+      - name: Login to Docker Hub
+        if: ${{ inputs.push }}
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2
+        with:
+          username: ${{ inputs.docker-hub-username }}
+          password: ${{ secrets.docker-hub-password }}
+
+      - name: Publish image
+        if: ${{ inputs.push }}
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294
+        with:
+          context: ${{ inputs.docker-context }}
+          file: ${{ inputs.docker-file }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ inputs.docker-repo-name }}:${{ inputs.docker-tag }}
