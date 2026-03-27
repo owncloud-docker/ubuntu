@@ -1,0 +1,32 @@
+on:
+  workflow_call:
+    inputs:
+      docker-repo-name:
+        required: true
+        type: string
+      docker-repo-description:
+        required: true
+        type: string
+      docker-hub-username:
+        required: true
+        type: string
+    secrets:
+      docker-hub-password:
+        required: true
+
+jobs:
+  update-docker-hub-description:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - uses: tcort/github-action-markdown-link-check@e7c7a18363c842693fadde5d41a3bd3573a7a225
+        with:
+          file-path: 'README.md'
+
+      - uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa
+        with:
+          username: ${{ inputs.docker-hub-username }}
+          password: ${{ secrets.docker-hub-password }}
+          repository: ${{ inputs.docker-repo-name }}
+          short-description: ${{ inputs.docker-repo-description }}
