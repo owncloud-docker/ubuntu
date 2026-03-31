@@ -63,7 +63,7 @@ jobs:
       # Push the image on merge to master
       - name: Login to Docker Hub
         if: ${{ inputs.push }}
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2
+        uses: docker/login-action@de05a6d3a24346d4659bce540fac29c04a309bad
         with:
           username: ${{ inputs.docker-hub-username }}
           password: ${{ secrets.docker-hub-password }}
