@@ -43,7 +43,7 @@ jobs:
 
       - name: Build and push
         id: docker-build
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294
+        uses: docker/build-push-action@c5117b60bc829f00aaacb038e99de2712bee6e6e
         with:
           context: ${{ inputs.docker-context }}
           file: ${{ inputs.docker-file }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Publish image
         if: ${{ inputs.push }}
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294
+        uses: docker/build-push-action@c5117b60bc829f00aaacb038e99de2712bee6e6e
         with:
           context: ${{ inputs.docker-context }}
           file: ${{ inputs.docker-file }}
