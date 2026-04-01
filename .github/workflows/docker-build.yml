@@ -22,6 +22,8 @@ on:
     secrets:
       docker-hub-password:
         required: true
+      docker-secrets:
+        required: false
 
 jobs:
   build:
@@ -41,7 +43,7 @@ jobs:
         with:
           driver-opts: network=host
 
-      - name: Build and push
+      - name: Build Docker Image
         id: docker-build
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
@@ -50,6 +52,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: 127.0.0.1:5000/image:temp
+          secrets: ${{ secrets.docker-secrets }}
 
       - name: Trivy scan
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
@@ -77,3 +80,4 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ inputs.docker-repo-name }}:${{ inputs.docker-tag }}
+          secrets: ${{ secrets.docker-secrets }}
