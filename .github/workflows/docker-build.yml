@@ -66,6 +66,7 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           skip-files: /usr/bin/gomplate,/usr/bin/wait-for
+          exit-code: 1
 
       # Push the image on merge to master
       - name: Login to Docker Hub
