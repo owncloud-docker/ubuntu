@@ -1,0 +1,12 @@
+on:
+  workflow_call:
+
+jobs:
+  lint-editorconfig:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: editorconfig-checker/action-editorconfig-checker@840e866d93b8e032123c23bac69dece044d4d84c # v2.2.0
+
+      - run: editorconfig-checker
