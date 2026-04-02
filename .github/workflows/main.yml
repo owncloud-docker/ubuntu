@@ -30,7 +30,6 @@ jobs:
         version:
           - value: "24.04"
           - value: "22.04"
-          - value: "20.04"
 
   update-docker-hub-description:
     needs: build
