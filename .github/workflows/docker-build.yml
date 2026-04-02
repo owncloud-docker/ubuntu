@@ -67,6 +67,8 @@ jobs:
           ignore-unfixed: true
           skip-files: /usr/bin/gomplate,/usr/bin/wait-for
           exit-code: 1
+        env:
+          TRIVY_IGNOREFILE: .trivyignore
 
       # Push the image on merge to master
       - name: Login to Docker Hub
