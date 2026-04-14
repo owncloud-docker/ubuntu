@@ -22,8 +22,10 @@ jobs:
       docker-file: v${{ matrix.version.value }}/Dockerfile.multiarch
       docker-hub-username: ${{ vars.DOCKERHUB_USERNAME }}
       push: ${{ github.ref == 'refs/heads/master' }}
+      orca-security-project-key: ${{ vars.ORCA_SECURITY_PROJECT_KEY }}
     secrets:
       docker-hub-password: ${{ secrets.DOCKERHUB_TOKEN }}
+      orca-security-api-token: ${{ secrets.ORCA_SECURITY_API_TOKEN }}
 
     strategy:
       matrix:

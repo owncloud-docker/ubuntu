@@ -30,11 +30,16 @@ on:
         required: false
         type: string
         default: ""
+      orca-security-project-key:
+        required: true
+        type: string
     secrets:
       docker-hub-password:
         required: true
       docker-secrets:
         required: false
+      orca-security-api-token:
+        required: true
 
 jobs:
   build:
@@ -76,6 +81,14 @@ jobs:
           skip-files: /usr/bin/gomplate,/usr/bin/wait-for
           exit-code: 1
           trivyignores: ${{ inputs.trivy-ignore-files }}
+
+      - name: Orca Security scan
+        uses: orcasecurity/shiftleft-container-image-action@9cceca839ca144e6bb160a1d974d0656bcf71f22 # v1.0.6
+        with:
+          api_token: ${{ secrets.orca-security-api-token }}
+          project_key: ${{ inputs.orca-security-project-key }}
+          image: registry:5000/image:temp
+          exit_code: "1"
 
       - name: Set publish tags
         if: ${{ inputs.push }}
