@@ -22,6 +22,10 @@ on:
       push:
         required: true
         type: boolean
+      trivy-ignore-files:
+        required: false
+        type: string
+        default: ".trivyignore"
     secrets:
       docker-hub-password:
         required: true
@@ -67,8 +71,7 @@ jobs:
           ignore-unfixed: true
           skip-files: /usr/bin/gomplate,/usr/bin/wait-for
           exit-code: 1
-        env:
-          TRIVY_IGNOREFILE: .trivyignore
+          trivyignores: ${{ inputs.trivy-ignore-files }}
 
       # Push the image on merge to master
       - name: Login to Docker Hub
