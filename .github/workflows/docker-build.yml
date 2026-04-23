@@ -26,6 +26,10 @@ on:
         required: false
         type: string
         default: ".trivyignore"
+      docker-extra-tags:
+        required: false
+        type: string
+        default: ""
     secrets:
       docker-hub-password:
         required: true
@@ -73,6 +77,24 @@ jobs:
           exit-code: 1
           trivyignores: ${{ inputs.trivy-ignore-files }}
 
+      - name: Set publish tags
+        if: ${{ inputs.push }}
+        id: tags
+        env:
+          DOCKER_REPO_NAME: ${{ inputs.docker-repo-name }}
+          DOCKER_TAG: ${{ inputs.docker-tag }}
+          DOCKER_EXTRA_TAGS: ${{ inputs.docker-extra-tags }}
+        run: |
+          TAGS="${DOCKER_REPO_NAME}:${DOCKER_TAG}"
+          if [ -n "${DOCKER_EXTRA_TAGS}" ]; then
+            while IFS= read -r tag; do
+              [ -n "$tag" ] && TAGS="${TAGS}"$'\n'"${DOCKER_REPO_NAME}:${tag}"
+            done <<< "${DOCKER_EXTRA_TAGS}"
+          fi
+          echo "list<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       # Push the image on merge to master
       - name: Login to Docker Hub
         if: ${{ inputs.push }}
@@ -89,6 +111,6 @@ jobs:
           file: ${{ inputs.docker-file }}
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ inputs.docker-repo-name }}:${{ inputs.docker-tag }}
+          tags: ${{ steps.tags.outputs.list }}
           secrets: ${{ secrets.docker-secrets }}
           build-args: ${{ inputs.docker-build-args }}
