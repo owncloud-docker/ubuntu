@@ -34,6 +34,7 @@ on:
         required: false
         type: string
         default: ""
+        description: "Port number to expose (host and container port will be identical, e.g. '9200')"
       smoke-test-url:
         required: false
         type: string
@@ -97,6 +98,9 @@ jobs:
           exit-code: 1
           trivyignores: ${{ inputs.trivy-ignore-files }}
 
+      # smoke-test-entrypoint-cmd is an entrypoint override: the command must end with
+      # a long-running process (e.g. via exec) so the container stays alive for polling.
+      # Example for oCIS: "ocis init || true; exec ocis server"
       - name: Smoke test
         if: ${{ inputs.smoke-test-url != '' }}
         env:
@@ -107,34 +111,36 @@ jobs:
           SMOKE_VERSION_JQ: ${{ inputs.smoke-test-version-jq }}
           DOCKER_TAG: ${{ inputs.docker-tag }}
         run: |
-          ARGS="--rm -d"
-          [ -n "${SMOKE_PORT}" ] && ARGS="${ARGS} -p ${SMOKE_PORT}:${SMOKE_PORT}"
+          ARGS=(--rm -d)
+          [ -n "${SMOKE_PORT}" ] && ARGS+=(-p "${SMOKE_PORT}:${SMOKE_PORT}")
           if [ -n "${SMOKE_ENV}" ]; then
             while IFS= read -r line; do
-              [ -n "$line" ] && ARGS="${ARGS} --env ${line}"
+              [ -n "$line" ] && ARGS+=(--env "${line}")
             done <<< "${SMOKE_ENV}"
           fi
           if [ -n "${SMOKE_ENTRYPOINT_CMD}" ]; then
-            CID=$(docker run ${ARGS} --entrypoint /bin/sh 127.0.0.1:5000/image:temp -c "${SMOKE_ENTRYPOINT_CMD}")
+            CID=$(docker run "${ARGS[@]}" --entrypoint /bin/sh 127.0.0.1:5000/image:temp -c "${SMOKE_ENTRYPOINT_CMD}")
           else
-            CID=$(docker run ${ARGS} 127.0.0.1:5000/image:temp)
+            CID=$(docker run "${ARGS[@]}" 127.0.0.1:5000/image:temp)
           fi
+          [ -z "${CID}" ] && { echo "docker run failed to start"; exit 1; }
           trap "docker stop ${CID} > /dev/null" EXIT
           echo "Container started: ${CID}"
           echo "Polling ${SMOKE_URL} ..."
+          STATUS=""
           for i in $(seq 1 30); do
             STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SMOKE_URL}")
             if [ "${STATUS}" = "200" ]; then
-              echo "Got HTTP 200 after $((i * 2))s"
+              echo "Got HTTP 200 after $((i * 2 - 2))s"
               break
-            fi
-            if [ "${i}" = "30" ]; then
-              echo "Timed out after 60s waiting for HTTP 200 (last status: ${STATUS})"
-              docker logs "${CID}"
-              exit 1
             fi
             sleep 2
           done
+          if [ "${STATUS}" != "200" ]; then
+            echo "Timed out after 60s waiting for HTTP 200 (last status: ${STATUS})"
+            docker logs "${CID}"
+            exit 1
+          fi
           if [ -n "${SMOKE_VERSION_JQ}" ]; then
             ACTUAL=$(curl -sk "${SMOKE_URL}" | jq -r "${SMOKE_VERSION_JQ}")
             if [ "${ACTUAL}" != "${DOCKER_TAG}" ]; then
