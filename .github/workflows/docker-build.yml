@@ -51,6 +51,11 @@ on:
         required: false
         type: string
         default: ""
+      smoke-test-cmd:
+        required: false
+        type: string
+        default: ""
+        description: "Shell command to run inside the container as a one-shot smoke test (for non-server images). Skipped when empty."
     secrets:
       docker-hub-password:
         required: true
@@ -149,6 +154,13 @@ jobs:
             fi
             echo "Version verified: ${ACTUAL}"
           fi
+
+      - name: Smoke test (cmd)
+        if: ${{ inputs.smoke-test-cmd != '' }}
+        env:
+          SMOKE_CMD: ${{ inputs.smoke-test-cmd }}
+        run: |
+          docker run --rm 127.0.0.1:5000/image:temp /bin/sh -c "${SMOKE_CMD}"
 
       - name: Set publish tags
         if: ${{ inputs.push }}
