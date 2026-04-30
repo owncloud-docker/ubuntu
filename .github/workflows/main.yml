@@ -13,6 +13,7 @@ jobs:
     uses: ./.github/workflows/lint-editorconfig.yml
 
   build:
+    name: build (${{ matrix.version.value }})
     needs: lint
     uses: ./.github/workflows/docker-build.yml
     with:
