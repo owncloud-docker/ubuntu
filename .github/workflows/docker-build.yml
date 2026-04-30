@@ -39,18 +39,22 @@ on:
         required: false
         type: string
         default: ""
+        description: "URL to poll for HTTP 200 after starting the container. When empty, the smoke test step is skipped."
       smoke-test-env:
         required: false
         type: string
         default: ""
+        description: "Newline-separated list of KEY=VALUE pairs passed as --env to docker run."
       smoke-test-entrypoint-cmd:
         required: false
         type: string
         default: ""
+        description: "Override entrypoint to /bin/sh -c '<cmd>'. Must end with a long-running process (e.g. via exec) so the container stays alive for polling."
       smoke-test-version-jq:
         required: false
         type: string
         default: ""
+        description: "jq expression applied to the JSON response from smoke-test-url; result must equal docker-tag."
       smoke-test-cmd:
         required: false
         type: string
@@ -133,13 +137,15 @@ jobs:
           echo "Container started: ${CID}"
           echo "Polling ${SMOKE_URL} ..."
           STATUS=""
-          for i in $(seq 1 30); do
+          ELAPSED=0
+          for i in $(seq 1 31); do
             STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SMOKE_URL}")
             if [ "${STATUS}" = "200" ]; then
-              echo "Got HTTP 200 after $((i * 2 - 2))s"
+              echo "Got HTTP 200 after ${ELAPSED}s"
               break
             fi
             sleep 2
+            ELAPSED=$((ELAPSED + 2))
           done
           if [ "${STATUS}" != "200" ]; then
             echo "Timed out after 60s waiting for HTTP 200 (last status: ${STATUS})"
@@ -155,6 +161,7 @@ jobs:
             echo "Version verified: ${ACTUAL}"
           fi
 
+      # smoke-test-cmd and smoke-test-url are independent guards — both steps run if both inputs are set.
       - name: Smoke test (cmd)
         if: ${{ inputs.smoke-test-cmd != '' }}
         env:
