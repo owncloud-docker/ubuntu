@@ -30,6 +30,36 @@ on:
         required: false
         type: string
         default: ""
+      smoke-test-port:
+        required: false
+        type: string
+        default: ""
+        description: "Port number to expose (host and container port will be identical, e.g. '9200')"
+      smoke-test-url:
+        required: false
+        type: string
+        default: ""
+        description: "URL to poll for HTTP 200 after starting the container. When empty, the smoke test step is skipped."
+      smoke-test-env:
+        required: false
+        type: string
+        default: ""
+        description: "Newline-separated list of KEY=VALUE pairs passed as --env to docker run."
+      smoke-test-entrypoint-cmd:
+        required: false
+        type: string
+        default: ""
+        description: "Override entrypoint to /bin/sh -c '<cmd>'. Must end with a long-running process (e.g. via exec) so the container stays alive for polling."
+      smoke-test-version-jq:
+        required: false
+        type: string
+        default: ""
+        description: "jq expression applied to the JSON response from smoke-test-url; result must equal docker-tag."
+      smoke-test-cmd:
+        required: false
+        type: string
+        default: ""
+        description: "Shell command to run inside the container as a one-shot smoke test (for non-server images). Skipped when empty."
     secrets:
       docker-hub-password:
         required: true
@@ -76,6 +106,68 @@ jobs:
           skip-files: /usr/bin/gomplate,/usr/bin/wait-for
           exit-code: 1
           trivyignores: ${{ inputs.trivy-ignore-files }}
+
+      # smoke-test-entrypoint-cmd is an entrypoint override: the command must end with
+      # a long-running process (e.g. via exec) so the container stays alive for polling.
+      # Example for oCIS: "ocis init || true; exec ocis server"
+      - name: Smoke test
+        if: ${{ inputs.smoke-test-url != '' }}
+        env:
+          SMOKE_PORT: ${{ inputs.smoke-test-port }}
+          SMOKE_URL: ${{ inputs.smoke-test-url }}
+          SMOKE_ENV: ${{ inputs.smoke-test-env }}
+          SMOKE_ENTRYPOINT_CMD: ${{ inputs.smoke-test-entrypoint-cmd }}
+          SMOKE_VERSION_JQ: ${{ inputs.smoke-test-version-jq }}
+          DOCKER_TAG: ${{ inputs.docker-tag }}
+        run: |
+          ARGS=(--rm -d)
+          [ -n "${SMOKE_PORT}" ] && ARGS+=(-p "${SMOKE_PORT}:${SMOKE_PORT}")
+          if [ -n "${SMOKE_ENV}" ]; then
+            while IFS= read -r line; do
+              [ -n "$line" ] && ARGS+=(--env "${line}")
+            done <<< "${SMOKE_ENV}"
+          fi
+          if [ -n "${SMOKE_ENTRYPOINT_CMD}" ]; then
+            CID=$(docker run "${ARGS[@]}" --entrypoint /bin/sh 127.0.0.1:5000/image:temp -c "${SMOKE_ENTRYPOINT_CMD}")
+          else
+            CID=$(docker run "${ARGS[@]}" 127.0.0.1:5000/image:temp)
+          fi
+          [ -z "${CID}" ] && { echo "docker run failed to start"; exit 1; }
+          trap "docker stop ${CID} > /dev/null" EXIT
+          echo "Container started: ${CID}"
+          echo "Polling ${SMOKE_URL} ..."
+          STATUS=""
+          ELAPSED=0
+          for i in $(seq 1 31); do
+            STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SMOKE_URL}")
+            if [ "${STATUS}" = "200" ]; then
+              echo "Got HTTP 200 after ${ELAPSED}s"
+              break
+            fi
+            sleep 2
+            ELAPSED=$((ELAPSED + 2))
+          done
+          if [ "${STATUS}" != "200" ]; then
+            echo "Timed out after 60s waiting for HTTP 200 (last status: ${STATUS})"
+            docker logs "${CID}"
+            exit 1
+          fi
+          if [ -n "${SMOKE_VERSION_JQ}" ]; then
+            ACTUAL=$(curl -sk "${SMOKE_URL}" | jq -r "${SMOKE_VERSION_JQ}")
+            if [ "${ACTUAL}" != "${DOCKER_TAG}" ]; then
+              echo "Version mismatch: expected '${DOCKER_TAG}', got '${ACTUAL}'"
+              exit 1
+            fi
+            echo "Version verified: ${ACTUAL}"
+          fi
+
+      # smoke-test-cmd and smoke-test-url are independent guards — both steps run if both inputs are set.
+      - name: Smoke test (cmd)
+        if: ${{ inputs.smoke-test-cmd != '' }}
+        env:
+          SMOKE_CMD: ${{ inputs.smoke-test-cmd }}
+        run: |
+          docker run --rm 127.0.0.1:5000/image:temp /bin/sh -c "${SMOKE_CMD}"
 
       - name: Set publish tags
         if: ${{ inputs.push }}

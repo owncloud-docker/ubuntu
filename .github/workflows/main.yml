@@ -13,6 +13,7 @@ jobs:
     uses: ./.github/workflows/lint-editorconfig.yml
 
   build:
+    name: build (${{ matrix.version.value }})
     needs: lint
     uses: ./.github/workflows/docker-build.yml
     with:
@@ -21,6 +22,7 @@ jobs:
       docker-context: v${{ matrix.version.value }}
       docker-file: v${{ matrix.version.value }}/Dockerfile.multiarch
       docker-hub-username: ${{ vars.DOCKERHUB_USERNAME }}
+      smoke-test-cmd: ${{ matrix.version.smoke-test-cmd }}
       push: ${{ github.ref == 'refs/heads/master' }}
     secrets:
       docker-hub-password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -29,7 +31,9 @@ jobs:
       matrix:
         version:
           - value: "24.04"
+            smoke-test-cmd: ". /etc/os-release && [ \"${VERSION_ID}\" = \"24.04\" ]"
           - value: "22.04"
+            smoke-test-cmd: ". /etc/os-release && [ \"${VERSION_ID}\" = \"22.04\" ]"
 
   update-docker-hub-description:
     needs: build
