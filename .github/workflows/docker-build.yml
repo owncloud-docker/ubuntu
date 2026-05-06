@@ -139,7 +139,7 @@ jobs:
           STATUS=""
           ELAPSED=0
           for i in $(seq 1 31); do
-            STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SMOKE_URL}")
+            STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SMOKE_URL}") || STATUS="000"
             if [ "${STATUS}" = "200" ]; then
               echo "Got HTTP 200 after ${ELAPSED}s"
               break
