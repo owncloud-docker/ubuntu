@@ -60,6 +60,16 @@ on:
         type: string
         default: ""
         description: "Shell command to run inside the container as a one-shot smoke test (for non-server images). Skipped when empty."
+      docker-cache-from:
+        required: false
+        type: string
+        default: ""
+        description: "BuildKit cache-from value passed to docker/build-push-action (e.g. 'type=gha')."
+      docker-cache-to:
+        required: false
+        type: string
+        default: ""
+        description: "BuildKit cache-to value passed to docker/build-push-action (e.g. 'type=gha,mode=max')."
     secrets:
       docker-hub-password:
         required: true
@@ -95,6 +105,8 @@ jobs:
           tags: 127.0.0.1:5000/image:temp
           secrets: ${{ secrets.docker-secrets }}
           build-args: ${{ inputs.docker-build-args }}
+          cache-from: ${{ inputs.docker-cache-from }}
+          cache-to: ${{ inputs.docker-cache-to }}
 
       - name: Trivy scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -206,3 +218,4 @@ jobs:
           tags: ${{ steps.tags.outputs.list }}
           secrets: ${{ secrets.docker-secrets }}
           build-args: ${{ inputs.docker-build-args }}
+          cache-from: ${{ inputs.docker-cache-from }}
