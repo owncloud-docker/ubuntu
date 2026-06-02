@@ -35,6 +35,25 @@ jobs:
           - value: "22.04"
             smoke-test-cmd: ". /etc/os-release && [ \"${VERSION_ID}\" = \"22.04\" ]"
 
+  # Self-test the opt-in native multi-arch reusable workflow end-to-end.
+  # Builds the v24.04 base image on native amd64 + arm64 runners and smoke-tests
+  # each arch. push is always false: this only asserts the native workflow works,
+  # it never publishes (the `build` job above owns publishing via docker-build.yml).
+  build-native:
+    name: build-native (24.04)
+    needs: lint
+    uses: ./.github/workflows/docker-build-native.yml
+    with:
+      docker-repo-name: owncloud/${{ github.event.repository.name }}
+      docker-tag: "24.04"
+      docker-context: v24.04
+      docker-file: v24.04/Dockerfile.multiarch
+      docker-hub-username: ${{ vars.DOCKERHUB_USERNAME }}
+      smoke-test-cmd: ". /etc/os-release && [ \"${VERSION_ID}\" = \"24.04\" ]"
+      push: false
+    secrets:
+      docker-hub-password: ${{ secrets.DOCKERHUB_TOKEN }}
+
   update-docker-hub-description:
     needs: build
     if: github.ref == 'refs/heads/master'
