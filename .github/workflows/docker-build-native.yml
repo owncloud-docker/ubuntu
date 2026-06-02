@@ -105,3 +105,156 @@ jobs:
           build-args: ${{ inputs.docker-build-args }}
           cache-from: ${{ inputs.docker-cache-from != '' && format('{0},scope={1}', inputs.docker-cache-from, matrix.arch) || '' }}
           cache-to: ${{ inputs.docker-cache-to != '' && format('{0},scope={1}', inputs.docker-cache-to, matrix.arch) || '' }}
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: localhost/image:temp
+          hide-progress: true
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          skip-files: /usr/bin/gomplate,/usr/bin/wait-for
+          exit-code: 1
+          trivyignores: ${{ inputs.trivy-ignore-files }}
+
+      - name: Smoke test
+        if: ${{ inputs.smoke-test-url != '' }}
+        env:
+          SMOKE_PORT: ${{ inputs.smoke-test-port }}
+          SMOKE_URL: ${{ inputs.smoke-test-url }}
+          SMOKE_ENV: ${{ inputs.smoke-test-env }}
+          SMOKE_ENTRYPOINT_CMD: ${{ inputs.smoke-test-entrypoint-cmd }}
+          SMOKE_VERSION_JQ: ${{ inputs.smoke-test-version-jq }}
+          DOCKER_TAG: ${{ inputs.docker-tag }}
+        run: |
+          ARGS=(--rm -d)
+          [ -n "${SMOKE_PORT}" ] && ARGS+=(-p "${SMOKE_PORT}:${SMOKE_PORT}")
+          if [ -n "${SMOKE_ENV}" ]; then
+            while IFS= read -r line; do
+              [ -n "$line" ] && ARGS+=(--env "${line}")
+            done <<< "${SMOKE_ENV}"
+          fi
+          if [ -n "${SMOKE_ENTRYPOINT_CMD}" ]; then
+            CID=$(docker run "${ARGS[@]}" --entrypoint /bin/sh localhost/image:temp -c "${SMOKE_ENTRYPOINT_CMD}")
+          else
+            CID=$(docker run "${ARGS[@]}" localhost/image:temp)
+          fi
+          [ -z "${CID}" ] && { echo "docker run failed to start"; exit 1; }
+          trap "docker stop ${CID} > /dev/null" EXIT
+          echo "Container started: ${CID}"
+          echo "Polling ${SMOKE_URL} ..."
+          STATUS=""
+          ELAPSED=0
+          for i in $(seq 1 31); do
+            STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SMOKE_URL}") || STATUS="000"
+            if [ "${STATUS}" = "200" ]; then
+              echo "Got HTTP 200 after ${ELAPSED}s"
+              break
+            fi
+            sleep 2
+            ELAPSED=$((ELAPSED + 2))
+          done
+          if [ "${STATUS}" != "200" ]; then
+            echo "Timed out after 60s waiting for HTTP 200 (last status: ${STATUS})"
+            docker logs "${CID}"
+            exit 1
+          fi
+          if [ -n "${SMOKE_VERSION_JQ}" ]; then
+            ACTUAL=$(curl -sk "${SMOKE_URL}" | jq -r "${SMOKE_VERSION_JQ}")
+            if [ "${ACTUAL}" != "${DOCKER_TAG}" ]; then
+              echo "Version mismatch: expected '${DOCKER_TAG}', got '${ACTUAL}'"
+              exit 1
+            fi
+            echo "Version verified: ${ACTUAL}"
+          fi
+
+      - name: Smoke test (cmd)
+        if: ${{ inputs.smoke-test-cmd != '' }}
+        env:
+          SMOKE_CMD: ${{ inputs.smoke-test-cmd }}
+        run: |
+          docker run --rm --entrypoint /bin/sh localhost/image:temp -c "${SMOKE_CMD}"
+
+      - name: Login to Docker Hub
+        if: ${{ inputs.push }}
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          username: ${{ inputs.docker-hub-username }}
+          password: ${{ secrets.docker-hub-password }}
+
+      - name: Push image by digest
+        if: ${{ inputs.push }}
+        id: push
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: ${{ inputs.docker-context }}
+          file: ${{ inputs.docker-file }}
+          platforms: linux/${{ matrix.arch }}
+          secrets: ${{ secrets.docker-secrets }}
+          build-args: ${{ inputs.docker-build-args }}
+          cache-from: ${{ inputs.docker-cache-from != '' && format('{0},scope={1}', inputs.docker-cache-from, matrix.arch) || '' }}
+          outputs: type=image,name=${{ inputs.docker-repo-name }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        if: ${{ inputs.push }}
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          mkdir -p "${RUNNER_TEMP}/digests"
+          touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
+
+      - name: Upload digest
+        if: ${{ inputs.push }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: build
+    if: ${{ inputs.push }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          username: ${{ inputs.docker-hub-username }}
+          password: ${{ secrets.docker-hub-password }}
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        env:
+          DOCKER_REPO_NAME: ${{ inputs.docker-repo-name }}
+          DOCKER_TAG: ${{ inputs.docker-tag }}
+          DOCKER_EXTRA_TAGS: ${{ inputs.docker-extra-tags }}
+        run: |
+          TAG_ARGS=(-t "${DOCKER_REPO_NAME}:${DOCKER_TAG}")
+          if [ -n "${DOCKER_EXTRA_TAGS}" ]; then
+            while IFS= read -r tag; do
+              [ -n "$tag" ] && TAG_ARGS+=(-t "${DOCKER_REPO_NAME}:${tag}")
+            done <<< "${DOCKER_EXTRA_TAGS}"
+          fi
+          SRC_ARGS=()
+          for d in *; do
+            SRC_ARGS+=("${DOCKER_REPO_NAME}@sha256:${d}")
+          done
+          docker buildx imagetools create "${TAG_ARGS[@]}" "${SRC_ARGS[@]}"
+
+      - name: Inspect manifest
+        env:
+          DOCKER_REPO_NAME: ${{ inputs.docker-repo-name }}
+          DOCKER_TAG: ${{ inputs.docker-tag }}
+        run: |
+          docker buildx imagetools inspect "${DOCKER_REPO_NAME}:${DOCKER_TAG}"
