@@ -201,6 +201,7 @@ jobs:
           DIGEST: ${{ steps.push.outputs.digest }}
         run: |
           mkdir -p "${RUNNER_TEMP}/digests"
+          [ -n "${DIGEST}" ] || { echo "::error::push step produced no digest"; exit 1; }
           touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
@@ -246,10 +247,12 @@ jobs:
               [ -n "$tag" ] && TAG_ARGS+=(-t "${DOCKER_REPO_NAME}:${tag}")
             done <<< "${DOCKER_EXTRA_TAGS}"
           fi
+          shopt -s nullglob
           SRC_ARGS=()
           for d in *; do
             SRC_ARGS+=("${DOCKER_REPO_NAME}@sha256:${d}")
           done
+          [ "${#SRC_ARGS[@]}" -gt 0 ] || { echo "::error::no digest files found"; exit 1; }
           docker buildx imagetools create "${TAG_ARGS[@]}" "${SRC_ARGS[@]}"
 
       - name: Inspect manifest
