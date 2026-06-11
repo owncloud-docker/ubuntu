@@ -30,6 +30,11 @@ on:
         required: false
         type: string
         default: ""
+      build-date-tag:
+        required: false
+        type: boolean
+        default: false
+        description: "When true, additionally publish an immutable <docker-tag>-<YYYYMMDD> tag."
       smoke-test-port:
         required: false
         type: string
@@ -188,12 +193,16 @@ jobs:
           DOCKER_REPO_NAME: ${{ inputs.docker-repo-name }}
           DOCKER_TAG: ${{ inputs.docker-tag }}
           DOCKER_EXTRA_TAGS: ${{ inputs.docker-extra-tags }}
+          BUILD_DATE_TAG: ${{ inputs.build-date-tag }}
         run: |
           TAGS="${DOCKER_REPO_NAME}:${DOCKER_TAG}"
           if [ -n "${DOCKER_EXTRA_TAGS}" ]; then
             while IFS= read -r tag; do
               [ -n "$tag" ] && TAGS="${TAGS}"$'\n'"${DOCKER_REPO_NAME}:${tag}"
             done <<< "${DOCKER_EXTRA_TAGS}"
+          fi
+          if [ "${BUILD_DATE_TAG}" = "true" ]; then
+            TAGS="${TAGS}"$'\n'"${DOCKER_REPO_NAME}:${DOCKER_TAG}-$(date -u +%Y%m%d)"
           fi
           echo "list<<EOF" >> $GITHUB_OUTPUT
           echo "$TAGS" >> $GITHUB_OUTPUT
