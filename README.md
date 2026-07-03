@@ -16,6 +16,9 @@ ownCloud Docker Ubuntu base image based on the [official Ubuntu](https://registr
 - **Supported architectures:**\
   `amd64`, `arm64v8`
 
+- **Build & maintenance:**\
+  [How these images are built, scanned, updated and published](https://github.com/owncloud-docker/.github/blob/master/docs/IMAGE-LIFECYCLE.md)
+
 ## Docker Tags and respective Dockerfile links
 
 - [`24.04`](https://github.com/owncloud-docker/ubuntu/blob/master/v24.04/Dockerfile.multiarch) available as `owncloud/ubuntu:24.04`
